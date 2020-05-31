@@ -18,10 +18,10 @@
         this.direction = 0    // 方向，水平(0)还是垂直
     },
 
-    init(node, cellNum, cell, direction) {
+    init: function(node, cellNum, direction) {
         this.node = node
         this.cellNum = cellNum
-        this.cell = cell
+        this.cell = this.node.getChildByName("container").getChildByName("content")
         this.direction = direction
 
         this.node.on(cc.Node.EventType.TOUCH_START, this.onTouchStart, this)
@@ -267,6 +267,10 @@
 
     getScrollState: function() {
         return this.isScrolling
+    },
+
+    getCell: function() {
+        return this.cell
     }
 })
 
