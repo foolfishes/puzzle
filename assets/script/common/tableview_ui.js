@@ -28,13 +28,13 @@
         this.node.on(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this)
         this.node.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this)
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this)
-        
+        let num = 0
         if (this.direction == 0) {
             this.cell.setAnchorPoint(0, 0)
-            var num = Math.ceil(this.node.width / this.cell.width) 
+            num = Math.ceil(this.node.width / this.cell.width) 
         } else {
             this.cell.setAnchorPoint(0, 1)
-            var num = Math.ceil(this.node.height / this.cell.height) 
+            num = Math.ceil(this.node.height / this.cell.height) 
         }
 
         for (let i=0; i< num+2; i++) {
@@ -76,7 +76,6 @@
             let cellObj = {"node": cell, "index": i}
             this.cellListCache.push(cellObj)
         }
-        cc.log(this.maxOffset)
     },
 
     onTouchStart: function(event) {
@@ -86,17 +85,13 @@
     },
 
     onTouchMove: function(event) {
-        cc.log("table on touch")
+        // cc.log("table on touch")
+        let distance = 0
         if (this.direction == 0) {
-            var distance = event.getLocation().x - this.startTouchPos.x
+            distance = event.getLocation().x - this.startTouchPos.x
         } else {
-            var distance = - (event.getLocation().y - this.startTouchPos.y)
+            distance = - (event.getLocation().y - this.startTouchPos.y)
         }
-        // let distance = event.getLocation().x - this.startTouchPos.x
-        // let time = new Date().getTime()
-        // let speed = distance / (time - this.lastTime)
-        // this.speed = speed
-        // this.lastTime = time
         this.isScrolling = true   // 事件由 cell 来判断是否触发，到这里了就说了触发了滑动
         this.startTouchPos = event.getLocation()
 
@@ -132,9 +127,8 @@
 
     moveDistance: function(distance) {
         // cc.log("distance: ", distance, this.offset)
-
         this.offset -= distance
-        var actualDis = distance
+        let actualDis = distance
         if (this.offset <= 0) {  // todo 需要防止减过头
             if (this.offset < -this.boundLen) {
                 actualDis = this.boundLen + this.offset + distance
@@ -147,10 +141,10 @@
             }
         }
         
-        var cellListNew = []
+        let cellListNew = []
         if (this.direction == 0) {
             for (let i=0; i< this.cellList.length; i++) {
-                var cellObj = this.cellList[i]
+                let cellObj = this.cellList[i]
                 cellObj.node.x += actualDis
                 if (cellObj.node.x < -5 * this.cell.width) {
                     cellObj.node.active = false
@@ -182,7 +176,7 @@
             }
         } else {
             for (let i=0; i< this.cellList.length; i++) {
-                var cellObj = this.cellList[i]
+                let cellObj = this.cellList[i]
                 cellObj.node.y -= actualDis
                 if (cellObj.node.y > 5 * this.cell.height) {
                     cellObj.node.active = false
@@ -218,24 +212,18 @@
     },
 
     setCellContent: function(cell, index) {
-        // cc.log("set cell: ", index, )
         if (this.cellAtIndex) {
             this.cellAtIndex(cell, index)
         }
-        // if (index < 0 || index > this.cellNum) {
-        //     cell.getChildByName("label").getComponent(cc.Label).string = "x"
-        // } else {
-        //     cell.getChildByName("label").getComponent(cc.Label).string = index
-        // }
     },
 
     getNewCell: function() {
         if (this.cellListCache.length > 0) {
             return this.cellListCache.pop()
         }
-        var cell = cc.instantiate(this.cell)
+        let cell = cc.instantiate(this.cell)
         this.node.getChildByName("container").addChild(cell)
-        var cellObj = {"node": cell, "index": 0}
+        let cellObj = {"node": cell, "index": 0}
         return cellObj
     },
 
@@ -271,6 +259,98 @@
 
     getCell: function() {
         return this.cell
+    },
+
+    /**
+     * 重新加载 tableView 的数据
+     * @param {*} cellNum ： 新的数据个数
+     * @param {*} keepOffset : 是否保存偏移量
+     * @param {*} deleteHead : 是否是删除了第一个元素，如果删除了第一个元素，需要指定来获取最新的index
+     */
+    reloadData: function(cellNum, keepOffset=false, deleteHead=false) {
+        this.cellNum = cellNum
+        if (this.direction == 0) {
+            this.maxOffset = this.cellNum * this.cell.width - this.node.width
+            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0   // 防止一个元素小于0的情况
+            this.maxOffset += this.boundLen
+        } else {
+            this.maxOffset = this.cellNum * this.cell.height - this.node.height
+            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0   // 防止一个元素小于0的情况
+            this.maxOffset += this.boundLen
+        }
+        if (keepOffset) {
+            var offset = this.offset
+            if (offset >= (this.maxOffset - this.boundLen)) {
+                offset = this.maxOffset - this.boundLen
+            }
+            if (deleteHead) {
+                this.resetBegin()
+            } else {
+                this.resetTableCell(this.cellList[0].index)
+            }
+        } else {
+           this.resetBegin()
+        }
+    },
+
+    /**
+     * tableView 恢复到初始状态
+     */
+    resetBegin: function() {
+        let index = 0
+        let cellListNew = []
+        for (let i=0; i< this.cellList.length; i++) {
+            let cellObj = this.cellList[i]
+            if (i < this.cellNum) {
+                cellObj.index = index
+                if (this.direction == 0) {
+                    cellObj.node.x = i * this.cell.width
+                } else {
+                    cellObj.node.y = -i * this.cell.height
+                }
+                this.setCellContent(cellObj.node, cellObj.index)
+                index += 1
+                cellListNew.push(cellObj)
+            } else {
+                cellObj.node.active = false
+                this.cellListCache.push(cellObj)
+            }
+        }
+        this.offset = 0
+        this.cellList = cellListNew
+    },
+
+    /**
+     * 
+     */
+    resetTableCell: function(idx) {
+        let index = idx
+        let startPos = 0
+        if (this.direction == 0) {
+            startPos = this.cellList[0].node.x
+        } else {
+            startPos = this.cellList[0].node.y
+        }
+        let cellListNew = []
+        for (let i=0; i< this.cellList.length; i++) {
+            let cellObj = this.cellList[i]
+            if (i < this.cellNum && index < this.cellNum) {
+                cellObj.index = index
+                if (this.direction == 0) {
+                    cellObj.node.x = startPos +  i * this.cell.width
+                } else {
+                    cellObj.node.y = startPos +  -i * this.cell.height
+                }
+                this.setCellContent(cellObj.node, cellObj.index)
+                index += 1
+                cellListNew.push(cellObj)
+            } else {
+                cellObj.node.active = false
+                this.cellListCache.push(cellObj)
+            }
+        }
+        this.cellList = cellListNew
+        this.moveDistance(0)
     }
 })
 

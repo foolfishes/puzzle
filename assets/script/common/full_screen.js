@@ -16,7 +16,7 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        var uiManager = require("./ui_manager")
+        let uiManager = require("./ui_manager")
         manager = uiManager.getUIManager()
         if (this.isBg) {
             this.node.setScale(manager.fullScreenScale)   // bg 必须使用设计分辨率image
