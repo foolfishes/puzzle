@@ -11,3 +11,5 @@
 - save status, reload status
 - enter,quit
 - setting
+
+Ts 子类覆盖属性问题？？？

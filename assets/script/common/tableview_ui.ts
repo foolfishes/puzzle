@@ -1,90 +1,94 @@
+import {UIUtil} from "./ui_util";
 
+const {ccclass, property} = cc._decorator;
 
- var tableView = cc.Class({
-    // extends: cc.Component,
+interface CellData {
+    node: cc.Node,
+    index: number
+}
 
-    ctor: function(){
-        this.boundLen = 200
-        this.offset = 0
-        this.cellList = []
-        this.cellListCache= []
-        this.startTouchPos = null
-        this.cellAtIndex = null  // callback
-        this.isScrolling = false
+@ccclass
+export class TableView {
+    boundLen: number = 200;
+    offset: number = 0;
+    cellList: CellData[] = [];
+    cellListCache: CellData[] = [];
+    cellAtIndex: any = null;
+    isScrolling: boolean = false;
+    node: cc.Node = null;        // tableview 顶层节点
+    cell: cc.Node = null;        // 提供需要显示的 cell 节点，可以获取大小等
+    cellNum: number = 0;         // 需要显示的 cell 个数
+    direction: number = 0;       // 方向，水平(0)还是垂直
+    startTouchPos: cc.Vec2 = null;
+    maxOffset: number = 0;
+    constructor(){
+    }
 
-        this.node = null
-        this.cellNum = 0      // 需要显示的 cell 个数
-        this.cell = null      // 提供需要显示的 cell 节点，可以获取大小等
-        this.direction = 0    // 方向，水平(0)还是垂直
-    },
+    init(node: cc.Node, cellNum: number, direction: number) {
+        this.node = node;
+        this.cellNum = cellNum;
+        this.cell = this.node.getChildByName("container").getChildByName("content");
+        this.direction = direction;
 
-    init: function(node, cellNum, direction) {
-        this.node = node
-        this.cellNum = cellNum
-        this.cell = this.node.getChildByName("container").getChildByName("content")
-        this.direction = direction
-
-        this.node.on(cc.Node.EventType.TOUCH_START, this.onTouchStart, this)
-        this.node.on(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this)
-        this.node.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this)
-        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this)
-        let num = 0
+        this.node.on(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+        let num = 0;
         if (this.direction == 0) {
-            this.cell.setAnchorPoint(0, 0)
-            num = Math.ceil(this.node.width / this.cell.width) 
+            this.cell.setAnchorPoint(0, 0);
+            num = Math.ceil(this.node.width / this.cell.width);
         } else {
             this.cell.setAnchorPoint(0, 1)
-            num = Math.ceil(this.node.height / this.cell.height) 
+            num = Math.ceil(this.node.height / this.cell.height);
         }
 
         for (let i=0; i< num+2; i++) {
-            let cell = cc.instantiate(this.cell)
+            let cell = cc.instantiate(this.cell);
             if (i < this.cellNum) {
-                cell.active = true
+                cell.active = true;
             } else {
-                cell.active = false
+                cell.active = false;
             }
             
-            this.node.getChildByName("container").addChild(cell)
+            this.node.getChildByName("container").addChild(cell);
             if (this.direction == 0) {
-                cell.x = i * cell.width
+                cell.x = i * cell.width;
             } else {
-                cell.y = - i * cell.height
+                cell.y = - i * cell.height;
             }
             
-            let cellObj = {"node": cell, "index": i}
-            this.cellList.push(cellObj)
-            this.setCellContent(cell, i)
-            // cell.on(cc.Node.EventType.TOUCH_START, this.onCellTouchStart, this)
-            // cell.getChildByName("label").getComponent(cc.Label).string = i
+            let cellObj = {"node": cell, "index": i};
+            this.cellList.push(cellObj);
+            this.setCellContent(cell, i);
         }
         if (this.direction == 0) {
-            this.maxOffset = this.cellNum * this.cell.width - this.node.width
-            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0   // 防止一个元素小于0的情况
-            this.maxOffset += this.boundLen
+            this.maxOffset = this.cellNum * this.cell.width - this.node.width;
+            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0;   // 防止一个元素小于0的情况
+            this.maxOffset += this.boundLen;
         } else {
-            this.maxOffset = this.cellNum * this.cell.height - this.node.height
-            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0   // 防止一个元素小于0的情况
-            this.maxOffset += this.boundLen
+            this.maxOffset = this.cellNum * this.cell.height - this.node.height;
+            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0;   // 防止一个元素小于0的情况
+            this.maxOffset += this.boundLen;
         }
 
         // 先预创建一些，防止卡顿，
         for (let i=0; i< 10; i++) {
-            let cell = cc.instantiate(this.cell)
-            cell.active = false
-            this.node.getChildByName("container").addChild(cell)
-            let cellObj = {"node": cell, "index": i}
-            this.cellListCache.push(cellObj)
+            let cell = cc.instantiate(this.cell);
+            cell.active = false;
+            this.node.getChildByName("container").addChild(cell);
+            let cellObj = {"node": cell, "index": i};
+            this.cellListCache.push(cellObj);
         }
-    },
+    }
 
-    onTouchStart: function(event) {
-        this.startTouchPos = event.getLocation()
+    onTouchStart(event: cc.Event.EventTouch) {
+        this.startTouchPos = event.getLocation();
         // this.lastTime = new Date().getTime()
         // this.tempOffset = this.offset
-    },
+    }
 
-    onTouchMove: function(event) {
+    onTouchMove(event: cc.Event.EventTouch) {
         // cc.log("table on touch")
         let distance = 0
         if (this.direction == 0) {
@@ -96,13 +100,13 @@
         this.startTouchPos = event.getLocation()
 
         this.moveDistance(distance)
-    },
+    }
 
-    onTouchEnd: function(event) {
+    onTouchEnd(event: cc.Event.EventTouch) {
         if (this.offset < 0) {
-            this.resetHead()
+            this.resetHead();
         } else if (this.offset > this.maxOffset - this.boundLen){
-            this.resetTail()
+            this.resetTail();
         } else {
             // 需要动画实现效果，暂时不做
             // let dis = this.offset - this.tempOffset
@@ -112,20 +116,20 @@
             // }
             // this.tempOffset = this.offset
         }
-        this.isScrolling = false
+        this.isScrolling = false;
         
-    },
+    }
 
-    onTouchCancel: function(event) {
+    onTouchCancel(event: cc.Event.EventTouch) {
         if (this.offset < 0) {
-            this.resetHead()
+            this.resetHead();
         } else if (this.offset > this.maxOffset - this.boundLen){
-            this.resetTail()
+            this.resetTail();
         }
         this.isScrolling = false
-    },
+    }
 
-    moveDistance: function(distance) {
+    moveDistance(distance: number) {
         // cc.log("distance: ", distance, this.offset)
         this.offset -= distance
         let actualDis = distance
@@ -209,15 +213,15 @@
         }
         
         this.cellList = cellListNew
-    },
+    }
 
-    setCellContent: function(cell, index) {
+    setCellContent(cell: cc.Node, index: number) {
         if (this.cellAtIndex) {
             this.cellAtIndex(cell, index)
         }
-    },
+    }
 
-    getNewCell: function() {
+    getNewCell(): CellData {
         if (this.cellListCache.length > 0) {
             return this.cellListCache.pop()
         }
@@ -225,9 +229,9 @@
         this.node.getChildByName("container").addChild(cell)
         let cellObj = {"node": cell, "index": 0}
         return cellObj
-    },
+    }
 
-    resetHead: function() {
+    resetHead() {
         this.cellList.forEach(cellObj => {
             if (this.direction == 0) {
                 cellObj.node.x += this.offset
@@ -236,30 +240,30 @@
             }
         })
         this.offset = 0
-    },
+    }
 
-    resetTail: function() {
+    resetTail() {
         this.cellList.forEach(cellObj => {
             if (this.direction == 0) {
-                cellObj.node.x += this.offset - (this.maxOffset - this.boundLen)
+                cellObj.node.x += this.offset - (this.maxOffset - this.boundLen);
             } else {
-                cellObj.node.y -= this.offset - (this.maxOffset - this.boundLen)
+                cellObj.node.y -= this.offset - (this.maxOffset - this.boundLen);
             }
         })
-        this.offset = this.maxOffset - this.boundLen
-    },
+        this.offset = this.maxOffset - this.boundLen;
+    }
 
-    setCellAtIndexCallback: function(callback) {
+    setCellAtIndexCallback(callback) {
         this.cellAtIndex = callback
-    },
+    }
 
-    getScrollState: function() {
+    getScrollState(): boolean {
         return this.isScrolling
-    },
+    }
 
-    getCell: function() {
+    getCell(): cc.Node {
         return this.cell
-    },
+    }
 
     /**
      * 重新加载 tableView 的数据
@@ -267,95 +271,90 @@
      * @param {*} keepOffset : 是否保存偏移量
      * @param {*} deleteHead : 是否是删除了第一个元素，如果删除了第一个元素，需要指定来获取最新的index
      */
-    reloadData: function(cellNum, keepOffset=false, deleteHead=false) {
-        this.cellNum = cellNum
+    reloadData(cellNum: number, keepOffset=false, deleteHead=false) {
+        this.cellNum = cellNum;
         if (this.direction == 0) {
-            this.maxOffset = this.cellNum * this.cell.width - this.node.width
-            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0   // 防止一个元素小于0的情况
-            this.maxOffset += this.boundLen
+            this.maxOffset = this.cellNum * this.cell.width - this.node.width;
+            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0;   // 防止一个元素小于0的情况
+            this.maxOffset += this.boundLen;
         } else {
-            this.maxOffset = this.cellNum * this.cell.height - this.node.height
-            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0   // 防止一个元素小于0的情况
-            this.maxOffset += this.boundLen
+            this.maxOffset = this.cellNum * this.cell.height - this.node.height;
+            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0;   // 防止一个元素小于0的情况
+            this.maxOffset += this.boundLen;
         }
         if (keepOffset) {
-            var offset = this.offset
+            var offset = this.offset;
             if (offset >= (this.maxOffset - this.boundLen)) {
-                offset = this.maxOffset - this.boundLen
+                offset = this.maxOffset - this.boundLen;
             }
             if (deleteHead) {
-                this.resetBegin()
+                this.resetBegin();
             } else {
-                this.resetTableCell(this.cellList[0].index)
+                this.resetTableCell(this.cellList[0].index);
             }
         } else {
-           this.resetBegin()
+           this.resetBegin();
         }
-    },
+    }
 
     /**
      * tableView 恢复到初始状态
      */
-    resetBegin: function() {
-        let index = 0
-        let cellListNew = []
+    resetBegin() {
+        let index = 0;
+        let cellListNew = [];
         for (let i=0; i< this.cellList.length; i++) {
-            let cellObj = this.cellList[i]
+            let cellObj = this.cellList[i];
             if (i < this.cellNum) {
-                cellObj.index = index
+                cellObj.index = index;
                 if (this.direction == 0) {
-                    cellObj.node.x = i * this.cell.width
+                    cellObj.node.x = i * this.cell.width;
                 } else {
-                    cellObj.node.y = -i * this.cell.height
+                    cellObj.node.y = -i * this.cell.height;
                 }
-                this.setCellContent(cellObj.node, cellObj.index)
-                index += 1
-                cellListNew.push(cellObj)
+                this.setCellContent(cellObj.node, cellObj.index);
+                index += 1;
+                cellListNew.push(cellObj);
             } else {
-                cellObj.node.active = false
-                this.cellListCache.push(cellObj)
+                cellObj.node.active = false;
+                this.cellListCache.push(cellObj);
             }
         }
-        this.offset = 0
-        this.cellList = cellListNew
-    },
+        this.offset = 0;
+        this.cellList = cellListNew;
+    }
 
     /**
      * 
      */
-    resetTableCell: function(idx) {
-        let index = idx
-        let startPos = 0
+    resetTableCell(idx: number) {
+        let index = idx;
+        let startPos = 0;
         if (this.direction == 0) {
-            startPos = this.cellList[0].node.x
+            startPos = this.cellList[0].node.x;
         } else {
-            startPos = this.cellList[0].node.y
+            startPos = this.cellList[0].node.y;
         }
-        let cellListNew = []
+        let cellListNew = [];
         for (let i=0; i< this.cellList.length; i++) {
-            let cellObj = this.cellList[i]
+            let cellObj = this.cellList[i];
             if (i < this.cellNum && index < this.cellNum) {
-                cellObj.index = index
+                cellObj.index = index;
                 if (this.direction == 0) {
-                    cellObj.node.x = startPos +  i * this.cell.width
+                    cellObj.node.x = startPos +  i * this.cell.width;
                 } else {
-                    cellObj.node.y = startPos +  -i * this.cell.height
+                    cellObj.node.y = startPos +  -i * this.cell.height;
                 }
-                this.setCellContent(cellObj.node, cellObj.index)
-                index += 1
-                cellListNew.push(cellObj)
+                this.setCellContent(cellObj.node, cellObj.index);
+                index += 1;
+                cellListNew.push(cellObj);
             } else {
-                cellObj.node.active = false
-                this.cellListCache.push(cellObj)
+                cellObj.node.active = false;
+                this.cellListCache.push(cellObj);
             }
         }
-        this.cellList = cellListNew
-        this.moveDistance(0)
+        this.cellList = cellListNew;
+        this.moveDistance(0);
     }
-})
-
-
-module.exports = {
-    "tableView": tableView
 }
 

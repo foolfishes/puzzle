@@ -1,6 +1,9 @@
-var configData = require("./config_data")
-var UIUtil = require("../common/ui_util")
-var timePiece = require("./time_piece")
+// var configData = require("./config_data")
+// var UIUtil = require("../common/ui_util")
+// var timePiece = require("./time_piece")
+import {BoardSize, SplitLv} from "./config_data";
+import {TimePiece} from "./time_piece";
+import {UIUtil} from "../common/ui_util";
 
 cc.Class({
     extends: cc.Component,
@@ -23,16 +26,17 @@ cc.Class({
         // })
         this.boardPanel = this.node.getChildByName("board")
         this.piece = this.boardPanel.getChildByName("piece")
-        this.init("normal")
+        this.init(SplitLv.normal)
     }, 
  
     init: function(lv, originImgPath=null) {
         this.lv = lv
         this.originImgPath = "single_image/1"
-        let splitData = configData.splitLv[lv]
+        let splitData = SplitLv.SplitData[this.lv]
+        cc.log("this.lv: ", this.lv)
         tablePanel = this.node.getChildByName("tableview-h")
         tablePanel.getComponent("tableview_use").init(splitData[0]*splitData[1], 1, this)
-        this.timePieceJs = new timePiece.TimePiece()
+        this.timePieceJs = new TimePiece()
         let topNode = this.node.getChildByName("top")
         this.timePieceJs.init(topNode, splitData[0]*splitData[1])
 
@@ -72,7 +76,7 @@ cc.Class({
     },
 
     getCropPos: function(index) {
-        let splitData = configData.splitLv[this.lv]
+        let splitData = SplitLv.SplitData[this.lv]
         let i = Math.floor(index / splitData[1])
         let j = index % splitData[1]
         let xOffset = 1400.0 / splitData[1]
@@ -94,9 +98,9 @@ cc.Class({
         } else {
             pos = this.boardPanel.convertToNodeSpaceAR(position)
         }
-        let sliptData = configData.splitLv[this.lv]
-        let height = configData.boardSize[1]
-        let width = configData.boardSize[0]
+        let sliptData = SplitLv.SplitData[this.lv]
+        let height = BoardSize.height
+        let width = BoardSize.width
         // 适当考虑边缘，
         if (-width/2-sliptData[2]/2 <= pos.x && pos.x<= width/2-sliptData[2]/2 && -height/2+sliptData[3]/2 <= pos.y && pos.y<= height/2+sliptData[3]/2) {
             return true
@@ -110,7 +114,7 @@ cc.Class({
      * @param {*} pos 
      */
     createNewPices: function(index, worldpos) {
-        let splitData = configData.splitLv[this.lv]
+        let splitData = SplitLv.SplitData[this.lv]
         // let data = this.getCropPos(index, splitData)
         let node = cc.instantiate(this.piece)
         node.setContentSize(cc.Size(splitData[2], splitData[3]))
@@ -177,10 +181,10 @@ cc.Class({
     },
     
     onDestroy: function() {
-        this.pieceList = null
-        this.timePieceJs.onDestroy()
-        this.timePieceJs = null
-        this.boardPanel = null
+        this.pieceList = null;
+        this.timePieceJs.destroy();
+        this.timePieceJs = null;
+        this.boardPanel = null;
     },
 
     closePanel: function(event) {
