@@ -130,4 +130,15 @@ export class TableViewUse extends cc.Component{
         this.moveCell.destroy();
         this.moveCell = null;
     }
+
+    reset(cellNum: number) {
+        this.dataList = [];
+        for(let i=0; i < cellNum; i++) {
+            this.dataList.push(i);
+        }
+        this.moveCell = null;
+        this.originPos = null;
+        this.isMoving = false;
+        this.tableView.reloadData(cellNum);
+    }
 }
