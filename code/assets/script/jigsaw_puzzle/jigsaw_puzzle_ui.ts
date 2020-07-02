@@ -14,12 +14,12 @@ interface PieceData {
 export class JigsawPuzzleUI extends cc.Component{
 
     piece: cc.Node = null;
-    lv: string = "normal";
+    level: string = "normal";
     pieceList: PieceData[] = [];
     timePieceJs: TimePiece = null;
     boardPanel: cc.Node = null;
-    originImgPath: string = null;
     pieceNum: number = 0;
+    imgId: number = 0;
 
     onLoad () {
         // var that = this
@@ -29,13 +29,13 @@ export class JigsawPuzzleUI extends cc.Component{
         // })
         this.boardPanel = this.node.getChildByName("board");
         this.piece = this.boardPanel.getChildByName("piece");
-        this.init(SplitLv.normal);
+        this.init(10000, SplitLv.normal);
     }
  
-    init(lv: string, originImgPath:string = null) {
-        this.lv = lv;
-        this.originImgPath = "single_image/1";
-        let splitData = SplitLv.SplitData[this.lv];
+    init(imgId: number, lv: string) {
+        this.imgId = imgId;
+        this.level = lv;
+        let splitData = SplitLv.SplitData[this.level];
         this.pieceNum = splitData[0]*splitData[1]
         let tablePanel = this.node.getChildByName("tableview-h");
         tablePanel.getComponent("tableview_use").init(this.pieceNum, 1, this);
@@ -49,44 +49,35 @@ export class JigsawPuzzleUI extends cc.Component{
         rightPanel.getChildByName("btn_show").on(cc.Node.EventType.TOUCH_END, this.showOriginImage, this);
         rightPanel.getChildByName("btn_set").on(cc.Node.EventType.TOUCH_END, this.showSettingPanel, this);
         rightPanel.getChildByName("btn_tool").on(cc.Node.EventType.TOUCH_END, this.showToolPanel, this);
-        // for(let i=0; i< splitData[0]; i++) {
-        //     for(let j=0; j<splitData[1]; j++) {
-        //         let data = this.getCropPos(i, j, splitData)
-        //         var node = cc.instantiate(this.piece)
-        //         node.setContentSize(cc.Size(splitData[2], splitData[3]))
-        //         node.active = true
-        //         node.x = this.initPos.x + data[0]
-        //         node.y = this.initPos.y - data[1]
-        //         boardPanel.addChild(node)
-        //         let img = lv + "_" + (i*splitData[1]+j)
-        //         // let imgedge = "mask_edge/mask_edge_" + data[2]
-        //         // cc.log("img: ", img, imgedge)
-        //         let nodet = node
-        //         // nodet.getComponent(cc.Sprite).spriteFrame = cc.loader.getRes("food", cc.SpriteAtlas).getSpriteFrame(img)
-        //         // nodet.getChildByName("mask").getComponent(cc.Sprite).spriteFrame = cc.loader.getRes("food", cc.SpriteAtlas).getSpriteFrame(imgedge)
-        //         cc.loader.loadRes(img, cc.SpriteFrame, function(err,spriteFrame) {
-        //             cc.log("load: ",img, err, spriteFrame)
-        //             nodet.getComponent(cc.Sprite).spriteFrame = spriteFrame
-        //         })
-        //         // cc.loader.loadRes(imgedge, cc.SpriteFrame, function(err, spriteFrame) {
-        //         //     let mask = nodet.getChildByName("mask")
-        //         //     mask.setContentSize(splitData[2], splitData[2])
-        //         //     mask.getComponent(cc.Sprite).spriteFrame = spriteFrame
-        //         // })
-        //     }
-        // }
+        
 
+    }
+    /**
+     * 完全拼接全图，测试用
+     * @param lv 
+     * @param originImgPath 
+     */
+    initFull(lv: string, ori:string = null) {
+        this.level = lv;
+        let splitData = SplitLv.SplitData[this.level];
+        for(let i=0; i< splitData[0]; i++) {
+            for(let j=0; j<splitData[1]; j++) {
+                let index = i*splitData[1]+j;
+                let pos: cc.Vec3 = this.getCropPos(index);
+                this.createNewPices(index, pos);
+            }
+        }
     }
 
     getCropPos(index: number): cc.Vec3 {
-        let splitData = SplitLv.SplitData[this.lv];
+        let splitData = SplitLv.SplitData[this.level];
         let i = Math.floor(index / splitData[1]);
         let j = index % splitData[1];
         let xOffset = 1400.0 / splitData[1];
         let yOffset = 900.0 / splitData[0];
         let x = xOffset * j;
         let y = yOffset * i - (splitData[3]-yOffset);
-        let fitPos = cc.v3(-700 + x, 450 - y, 0);
+        let fitPos = cc.v3(-700 + x, 450 - y, 0);  // 初始位置偏移
         return fitPos
     } 
 
@@ -101,7 +92,7 @@ export class JigsawPuzzleUI extends cc.Component{
         } else {
             pos = this.boardPanel.convertToNodeSpaceAR(position);
         }
-        let sliptData = SplitLv.SplitData[this.lv];
+        let sliptData = SplitLv.SplitData[this.level];
         let height = BoardSize.height;
         let width = BoardSize.width;
         // 适当考虑边缘，
@@ -117,15 +108,15 @@ export class JigsawPuzzleUI extends cc.Component{
      * @param {*} pos 
      */
     createNewPices(index: number, worldpos: cc.Vec3) {
-        let splitData: number[] = SplitLv.SplitData[this.lv];
+        let splitData: number[] = SplitLv.SplitData[this.level];
         // let data = this.getCropPos(index, splitData)
         let node = cc.instantiate(this.piece);
         node.setContentSize(cc.size(splitData[2], splitData[3]));
         node.active = true;
         node.position = this.boardPanel.convertToNodeSpaceAR(worldpos);
-        let img = this.lv + "_" + (index);
-        cc.log("new piece: ", index, img)
-        UIUtil.loadTexture(node, img);
+        let img = this.getImgPath(index);
+        // cc.log("new piece: ", index, img)
+        UIUtil.loadTextureAtlas(node, img[0], img[1]);
         this.boardPanel.addChild(node);
         this.pieceList.push({"node": node, "index": index, "fit": 0});
         node.on(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
@@ -134,10 +125,13 @@ export class JigsawPuzzleUI extends cc.Component{
         node.on(cc.Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
     }
 
-    /**通过索引获取对应 piece 图片路径 */
-    getImgPath(index: number) {
-        let img = this.lv + "_" + index;
-        return img;
+    /**
+     * 通过索引获取对应 piece 图片路径
+     */
+    getImgPath(index: number): string[] {
+        let path = "pieces_images/" + [this.imgId.toString(), this.level].join("_");
+        let file = index.toString();
+        return [path, file];
     }
     
     onTouchStart(event: cc.Event.EventTouch) {
@@ -190,7 +184,8 @@ export class JigsawPuzzleUI extends cc.Component{
         }
         if (this.isSuccess()) {
             this.timePieceJs.stop();
-            this.resetGame();
+            cc.log("success")
+            // this.resetGame();
         }
     }
 
@@ -252,7 +247,8 @@ export class JigsawPuzzleUI extends cc.Component{
         cc.loader.loadRes("prefabs/layer_origin_img", function(err, prefab) {
             let panel = cc.instantiate(prefab);
             panel.active = true;
-            panel.getComponent("origin_image_ui").init(that.originImgPath);
+            let originImg = "origin_images/" + that.imgId.toString() + ".jpg"
+            panel.getComponent("origin_image_ui").init(originImg);
             // that.node.getParent().addChild(panel)
         })
     }

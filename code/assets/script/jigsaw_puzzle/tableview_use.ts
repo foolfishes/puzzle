@@ -1,5 +1,7 @@
 import {TableView} from "../common/tableview_ui";
 import {UIUtil} from "../common/ui_util";
+import {JigsawPuzzleUI} from "./jigsaw_puzzle_ui";
+
 
 const {ccclass, property} = cc._decorator
 
@@ -8,11 +10,11 @@ export class TableViewUse extends cc.Component{
     tableView: TableView = null;
     moveCell: cc.Node = null;
     isMoving: boolean = false;
-    boardJs: any = null;
+    boardJs: JigsawPuzzleUI = null;
     originPos: cc.Vec2 = null;
     dataList: number[] = [];
 
-    init(cellNum: number, direction: number, boardJs: cc.Component) {
+    init(cellNum: number, direction: number, boardJs: JigsawPuzzleUI) {
         this.dataList = [];
         for(let i=0; i < cellNum; i++) {
             this.dataList.push(i);
@@ -36,7 +38,8 @@ export class TableViewUse extends cc.Component{
             cell.getChildByName("label").getComponent(cc.Label).string = "x";
         } else {
             let idx = this.dataList[index]
-            UIUtil.loadTexture(cell.getChildByName("image"), this.boardJs.getImgPath(idx));
+            let imgPath = this.boardJs.getImgPath(idx)
+            UIUtil.loadTextureAtlas(cell.getChildByName("image"), imgPath[0], imgPath[1]);
             cell.getChildByName("label").getComponent(cc.Label).string = idx.toString();
         }
         var touchStart = function(event) {
@@ -90,7 +93,8 @@ export class TableViewUse extends cc.Component{
         if (!this.moveCell) {
             this.moveCell = cc.instantiate(this.tableView.cell);
             this.moveCell.active = true;
-            UIUtil.loadTexture(this.moveCell.getChildByName("image"), this.boardJs.getImgPath(this.dataList[index]));
+            let imgPath = this.boardJs.getImgPath(this.dataList[index])
+            UIUtil.loadTextureAtlas(this.moveCell.getChildByName("image"), imgPath[0], imgPath[1]);
             let worldpos = event.currentTarget.parent.convertToWorldSpaceAR(event.currentTarget.position);
             this.moveCell.position = parent.convertToNodeSpaceAR(worldpos);
             this.originPos = parent.convertToNodeSpaceAR(worldpos);

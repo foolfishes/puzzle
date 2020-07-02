@@ -6,10 +6,21 @@ export class UIUtil {
      * @param path 
      * @param callback 
      */
-    static loadTexture(node: cc.Node, path: string, callback: Function=null) {
+    static loadTexture(node: cc.Node, path: string, callback: any=null): void {
         cc.loader.loadRes(path, cc.SpriteFrame, function(err, spriteFrame) {
             // cc.log("loadtxture: ", node)
             node.getComponent(cc.Sprite).spriteFrame = spriteFrame;
+            if (callback) {
+                callback();
+            }
+        })
+    }
+
+    static loadTextureAtlas(node: cc.Node, path: string, file: string, callback: any=null) :void {
+        cc.loader.loadRes(path, cc.SpriteAtlas, function(err, atlas) {
+            cc.log("loadtextureatlas: ", path, file)
+            let frame = atlas.getSpriteFrame(file);
+            node.getComponent(cc.Sprite).spriteFrame = frame;
             if (callback) {
                 callback();
             }
