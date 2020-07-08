@@ -1,7 +1,7 @@
 import {PopWin} from "./pop_win"
 import {ButtonStyle} from "./com_define"
 import {Language} from "./language"
-import {UIUtil} from "./ui_util"
+import {UIUtil} from "../utils/ui_util"
 
 const {ccclass, property} = cc._decorator;
 
@@ -10,7 +10,17 @@ export class DialogUI extends PopWin{
 
     okCallback: any = null;
     cancelCallback: any = null;
-    resPath: string = "prefabs/layer_dialog";
+    static resPath: string = "prefabs/layer_dialog";
+
+    static createInstance() {
+        cc.loader.loadRes(this.resPath, (err, prefab)=> {
+            let panel = cc.instantiate(prefab);
+            panel.active = true;
+            let dialogCp: DialogUI =  panel.getComponent("dialog_ui");
+            dialogCp.init("恭喜完成拼图！！！", "over", "重新开始", "退出");
+        })
+    }
+
 
     init(tips: string, 
         title?: string,

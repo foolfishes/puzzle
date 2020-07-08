@@ -1,5 +1,5 @@
 
-import {UIUtil} from "../common/ui_util"
+import {UIUtil} from "../utils/ui_util"
 import {PopWin} from "../common/pop_win"
 
 

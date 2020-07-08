@@ -1,4 +1,4 @@
-import {UIUtil} from "./ui_util";
+import {UIUtil} from "../utils/ui_util";
 
 const {ccclass, property} = cc._decorator;
 
@@ -42,7 +42,7 @@ export class TableView {
             this.cell.setAnchorPoint(0, 1)
             num = Math.ceil(this.node.height / this.cell.height);
         }
-
+        // 初始化可见区域的数据集
         for (let i=0; i< num+2; i++) {
             let cell = cc.instantiate(this.cell);
             if (i < this.cellNum) {
@@ -62,15 +62,7 @@ export class TableView {
             this.cellList.push(cellObj);
             this.setCellContent(cell, i);
         }
-        if (this.direction == 0) {
-            this.maxOffset = this.cellNum * this.cell.width - this.node.width;
-            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0;   // 防止一个元素小于0的情况
-            this.maxOffset += this.boundLen;
-        } else {
-            this.maxOffset = this.cellNum * this.cell.height - this.node.height;
-            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0;   // 防止一个元素小于0的情况
-            this.maxOffset += this.boundLen;
-        }
+        this.calMaxOffset();
 
         // 先预创建一些，防止卡顿，
         for (let i=0; i< 10; i++) {
@@ -271,16 +263,12 @@ export class TableView {
      * @param {*} keepOffset : 是否保存偏移量
      * @param {*} deleteHead : 是否是删除了第一个元素，如果删除了第一个元素，需要指定来获取最新的index
      */
-    reloadData(cellNum: number, keepOffset=false, deleteHead=false) {
+    reloadData(cellNum: number, keepOffset: boolean=false, deleteHead:boolean=false) {
         this.cellNum = cellNum;
-        if (this.direction == 0) {
-            this.maxOffset = this.cellNum * this.cell.width - this.node.width;
-            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0;   // 防止一个元素小于0的情况
-            this.maxOffset += this.boundLen;
-        } else {
-            this.maxOffset = this.cellNum * this.cell.height - this.node.height;
-            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0;   // 防止一个元素小于0的情况
-            this.maxOffset += this.boundLen;
+        this.calMaxOffset();
+        if (this.cellList.length == 0) {
+            this.reInit(cellNum);
+            return;
         }
         if (keepOffset) {
             var offset = this.offset;
@@ -355,6 +343,55 @@ export class TableView {
         }
         this.cellList = cellListNew;
         this.moveDistance(0);
+    }
+
+    /**
+     * 当 tableview 中的数据没有了之后重新初始化
+     * @param cellNum 
+     */
+    reInit(cellNum: number) {
+        this.cellNum = cellNum;
+        let num = 0;
+        if (this.direction == 0) {
+            this.cell.setAnchorPoint(0, 0);
+            num = Math.ceil(this.node.width / this.cell.width);
+        } else {
+            this.cell.setAnchorPoint(0, 1)
+            num = Math.ceil(this.node.height / this.cell.height);
+        }
+
+        for (let i=0; i< num+2; i++) {
+            let obj = this.getNewCell();
+            if (i < this.cellNum) {
+                obj.node.active = true;
+            } else {
+                obj.node.active = false;
+            }
+            
+            if (this.direction == 0) {
+                obj.node.x = i * obj.node.width;
+            } else {
+                obj.node.y = - i * obj.node.height;
+            }
+            obj.index = i
+            this.cellList.push(obj);
+            this.setCellContent(obj.node, i);
+        }
+        this.calMaxOffset();
+    }
+    /**
+     * 计算最大偏移量
+     */
+    calMaxOffset() {
+        if (this.direction == 0) {
+            this.maxOffset = this.cellNum * this.cell.width - this.node.width;
+            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0;   // 防止一个元素小于0的情况
+            this.maxOffset += this.boundLen;
+        } else {
+            this.maxOffset = this.cellNum * this.cell.height - this.node.height;
+            this.maxOffset = this.maxOffset > 0 ? this.maxOffset : 0;   // 防止一个元素小于0的情况
+            this.maxOffset += this.boundLen;
+        }
     }
 }
 

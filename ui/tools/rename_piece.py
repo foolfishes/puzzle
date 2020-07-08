@@ -11,6 +11,8 @@ def rename(path):
     pattern = r".+?-Piece-([0-9]+\.png)"
     for file in os.listdir(path):
         result = re.match(pattern, file)
+        if not result:
+            continue
         new_name = "/".join([path, result.group(1)])
         old_name = "/".join([path, file])
         os.rename(old_name, new_name)
@@ -26,7 +28,7 @@ if __name__ == "__main__":
     img_id = args[1] if len(args)>1 else IMG_ID
     crop_type = args[2] if len(args)>2 else CROP_TYPE
     root_dir = os.getcwd().replace("\\", "/").rpartition("/")[0]
-    file_dir = "/".join([root_dir, "origin/pieces", str(img_id)])
+    file_dir = "/".join([root_dir, "origin", "{}_{}".format(img_id, crop_type)])
     if not os.path.exists(file_dir):
         print file_dir, "file path not exist!!!"
     else:

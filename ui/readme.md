@@ -9,20 +9,23 @@ UI 工程目录
 
 拼图切块使用PS Puzzle Pro 滤镜来实现;  滤镜配置参数：
 
-切割参数：选择默认数据，半圆形模式;
-斜面参数：ANGLE:136; SHASOW OPACITY: 66%; BEVEL SIZE: 4px; 其他默认； # todo 待优化，减少偏移
+切割参数：选择默认数据，半圆形模式;  KNOBS SIZE: 88
+斜面参数：ANGLE:122/27; BEVEL SIZE: 2px; DEPTH:3px;  其他默认;
+
 
 选择全部然后保存Piece到psd，打开psd(ps cc打开才行)；执行操作：
 - 选择-所有图层；
 - 图层-对齐->底边/左边；
 - 图像-裁切(透明像素，将每个图层裁切成大小一致的小图)；
-- 文件-导出-将图层导出到文件(选择透明区域选项)；
+- 文件-导出-将图层导出到文件(选择透明区域选项)；选择PNG24，PNG8会有锯齿
 - rename_piece.py 脚本重命名
-- TexturePacker 打包
+- TexturePacker 打包,(需要留边界)
+- pngquant 压缩大小: pngquant.exe --quality 5 xxx.png
+
 
 切割大小：
-- (4, 7)
-- (5, 8)
-- (7, 11)
-- (9, 14)
+- simple: (4, 7)     大小： (268, 286)
+- normal: (5, 8)     大小： (229, 234)
+- hard: (7, 11)      大小： (167, 168)
+- crazy: (9, 14)     大小： (130, 131)
 

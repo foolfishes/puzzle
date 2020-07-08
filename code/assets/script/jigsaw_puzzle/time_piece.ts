@@ -1,4 +1,4 @@
-import {TimeUtil} from "../common/time_util";
+import {TimeUtil} from "../utils/time_util";
 
 
 export class TimePiece{

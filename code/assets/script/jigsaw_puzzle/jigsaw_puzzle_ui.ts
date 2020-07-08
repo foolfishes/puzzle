@@ -1,6 +1,6 @@
 import {BoardSize, SplitLv} from "./config_data";
 import {TimePiece} from "./time_piece";
-import {UIUtil} from "../common/ui_util";
+import {UIUtil} from "../utils/ui_util";
 import { DialogUI } from "../common/dialog_ui";
 const {ccclass, property} = cc._decorator;
 
@@ -29,7 +29,7 @@ export class JigsawPuzzleUI extends cc.Component{
         // })
         this.boardPanel = this.node.getChildByName("board");
         this.piece = this.boardPanel.getChildByName("piece");
-        this.init(10000, SplitLv.normal);
+        this.init(10000, SplitLv.crazy);
     }
  
     init(imgId: number, lv: string) {
@@ -49,8 +49,6 @@ export class JigsawPuzzleUI extends cc.Component{
         rightPanel.getChildByName("btn_show").on(cc.Node.EventType.TOUCH_END, this.showOriginImage, this);
         rightPanel.getChildByName("btn_set").on(cc.Node.EventType.TOUCH_END, this.showSettingPanel, this);
         rightPanel.getChildByName("btn_tool").on(cc.Node.EventType.TOUCH_END, this.showToolPanel, this);
-        
-
     }
     /**
      * 完全拼接全图，测试用
@@ -131,6 +129,7 @@ export class JigsawPuzzleUI extends cc.Component{
     getImgPath(index: number): string[] {
         let path = "pieces_images/" + [this.imgId.toString(), this.level].join("_");
         let file = index.toString();
+        // let file = "1";
         return [path, file];
     }
     
@@ -185,7 +184,7 @@ export class JigsawPuzzleUI extends cc.Component{
         if (this.isSuccess()) {
             this.timePieceJs.stop();
             cc.log("success")
-            // this.resetGame();
+            this.showResultUI()
         }
     }
 
@@ -208,12 +207,12 @@ export class JigsawPuzzleUI extends cc.Component{
     }
 
     showResultUI() {
-        let that: JigsawPuzzleUI = this;
-        cc.loader.loadRes("prefabs/layer_dialog", function(err, prefab) {
+        // let that: JigsawPuzzleUI = this;
+        cc.loader.loadRes("prefabs/layer_dialog", (err, prefab)=> {
             let panel = cc.instantiate(prefab);
             panel.active = true;
             let dialogCp: DialogUI =  panel.getComponent("dialog_ui");
-            dialogCp.init("恭喜完成拼图！！！", "over", "重新开始", "退出", that.resetGame, that.close);
+            dialogCp.init("恭喜完成拼图！！！", "over", "重新开始", "退出", ()=>{this.resetGame()});
         })
     }
 
@@ -227,12 +226,14 @@ export class JigsawPuzzleUI extends cc.Component{
     close(event: cc.Event.EventTouch) {
         // this.node.removeFromParent(true)
         this.node.destroy();
+        cc.log("close ------------")
     }
 
     /**
      * 重新开始
      */
     resetGame() {
+        cc.log("reset game: ", this.pieceList)
         for(let i=0; i< this.pieceList.length; i++) {
             this.pieceList[i].node.destroy();
         }
@@ -265,5 +266,6 @@ export class JigsawPuzzleUI extends cc.Component{
     
     showToolPanel(event: cc.Event.EventTouch) {
         cc.log("show tool panel")
+        this.resetGame()
     }
 }

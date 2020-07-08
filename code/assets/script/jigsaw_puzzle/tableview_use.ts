@@ -1,5 +1,5 @@
 import {TableView} from "../common/tableview_ui";
-import {UIUtil} from "../common/ui_util";
+import {UIUtil} from "../utils/ui_util";
 import {JigsawPuzzleUI} from "./jigsaw_puzzle_ui";
 
 
@@ -15,16 +15,16 @@ export class TableViewUse extends cc.Component{
     dataList: number[] = [];
 
     init(cellNum: number, direction: number, boardJs: JigsawPuzzleUI) {
-        this.dataList = [];
-        for(let i=0; i < cellNum; i++) {
-            this.dataList.push(i);
-        }
-        for(let i=cellNum-1; i>-1; i--) {   // 打乱
-            let index = Math.floor(Math.random()*(i+1));
-            let data = this.dataList[index];
-            this.dataList[index] = this.dataList[i];
-            this.dataList[i] = data;
-        }
+        this.dataList = this.shuffleList(cellNum);
+        // for(let i=0; i < cellNum; i++) {
+        //     this.dataList.push(i);
+        // }
+        // for(let i=cellNum-1; i>-1; i--) {   // 打乱
+        //     let index = Math.floor(Math.random()*(i+1));
+        //     let data = this.dataList[index];
+        //     this.dataList[index] = this.dataList[i];
+        //     this.dataList[i] = data;
+        // }
         this.boardJs = boardJs;
         this.tableView = new TableView();
         // 不能直接使用 this.callback ,不然该函数里面的this都将变成this.tableView对象
@@ -73,7 +73,7 @@ export class TableViewUse extends cc.Component{
 
         let dis = event.getDelta()
         let disAbs = Math.sqrt(dis.x * dis.x + dis.y * dis.y);
-        if (disAbs < 6) {
+        if (!this.isMoving && disAbs < 6) {  // 小距离排除
             event.stopPropagation();
             return;
         }
@@ -105,15 +105,11 @@ export class TableViewUse extends cc.Component{
     }
 
     onTouchEnd(event: cc.Event.EventTouch, index: number) {
-        // cc.log(event)
-        this.onTouchCancel(event, index);
-    }
-
-    onTouchCancel(event: cc.Event.EventTouch, index: number) {
         if (this.moveCell) {
             let worldPos = this.node.getParent().convertToWorldSpaceAR(this.moveCell.position);
-            if (this.boardJs.isInArea(worldPos)) {
-                let idx = this.dataList.splice(index, 1);
+            let worldPosVec2 = cc.v2(worldPos.x, worldPos.y)
+            if (this.boardJs.isInArea(worldPosVec2)) {
+                let idx = this.dataList.splice(index, 1)[0];
                 this.boardJs.createNewPices(idx, worldPos);
                 this.moveCell.removeFromParent(true) ;
                 this.moveCell = null;
@@ -125,9 +121,11 @@ export class TableViewUse extends cc.Component{
             }
             this.originPos = null;
         }
-        
         this.isMoving = false;
-        // event.currentTarget.setScale(1)
+    }
+
+    onTouchCancel(event: cc.Event.EventTouch, index: number) {
+        this.onTouchEnd(event, index)
     }
 
     clearMoveCell() {
@@ -136,13 +134,31 @@ export class TableViewUse extends cc.Component{
     }
 
     reset(cellNum: number) {
-        this.dataList = [];
-        for(let i=0; i < cellNum; i++) {
-            this.dataList.push(i);
-        }
+        this.dataList = this.shuffleList(cellNum);
         this.moveCell = null;
         this.originPos = null;
         this.isMoving = false;
         this.tableView.reloadData(cellNum);
+    }
+
+    /**
+     * 获取打乱的列表
+     * @param num 
+     */
+    shuffleList(num: number, shuffle: boolean=false) {
+        let list = [];
+        for(let i=0; i < num; i++) {
+            list.push(i);
+        }
+        if (!shuffle) {
+            return list;
+        }
+        for(let i=num-1; i>-1; i--) {   // 打乱
+            let index = Math.floor(Math.random()*(i+1));
+            let data = list[index];
+            list[index] = list[i];
+            list[i] = data;
+        }
+        return list;
     }
 }
