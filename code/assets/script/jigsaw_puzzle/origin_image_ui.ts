@@ -1,21 +1,30 @@
 
 import {UIUtil} from "../utils/ui_util"
-import {PopWin} from "../common/pop_win"
+import {PopUI} from "../base_ui/pop_ui"
 
 
 const {ccclass, property} = cc._decorator;
 
-@ccclass
-export class OriginImageUI extends PopWin{
-    
-    resPath = "prefabs/layer_origin_img"
+export class OriginImageUI extends PopUI{
 
-    init(imgPath: string) {
-        let img = this.node.getChildByName("image");
+    imgPath: string;
+    
+    constructor(imgPath: string) {
+        super("prefabs/layer_origin_img");
+        this.imgPath = imgPath;
+    }
+
+    initUI() {
+        let img = this.rootNode.getChildByName("image");
         this.contentNode = img;
-        // img.getChildByName("btn_close").on(cc.Node.EventType.TOUCH_END, this.close, this)
-        UIUtil.addListener(img.getChildByName("btn_close"), this.closeWin.bind(this));
+        UIUtil.addListener(img.getChildByName("btn_close"), this.close.bind(this));
         UIUtil.addListener(img, (event)=>{event.stopPropagation()});
-        UIUtil.loadTexture(img, imgPath, this.onShow.bind(this));
+        UIUtil.loadTexture(img, this.imgPath, this.onShow.bind(this));
+        this.contentNode.active = false;
+    }
+
+    onShow() {
+        this.contentNode.active = true;
+        super.onShow();
     }
 }

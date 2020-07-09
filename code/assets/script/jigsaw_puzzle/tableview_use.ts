@@ -1,4 +1,4 @@
-import {TableView} from "../common/tableview_ui";
+import {TableView} from "../base_ui/tableview";
 import {UIUtil} from "../utils/ui_util";
 import {JigsawPuzzleUI} from "./jigsaw_puzzle_ui";
 
