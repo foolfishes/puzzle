@@ -14,17 +14,8 @@ export class TableViewUse extends cc.Component{
     originPos: cc.Vec2 = null;
     dataList: number[] = [];
 
-    init(cellNum: number, direction: number, boardJs: JigsawPuzzleUI) {
-        this.dataList = this.shuffleList(cellNum);
-        // for(let i=0; i < cellNum; i++) {
-        //     this.dataList.push(i);
-        // }
-        // for(let i=cellNum-1; i>-1; i--) {   // 打乱
-        //     let index = Math.floor(Math.random()*(i+1));
-        //     let data = this.dataList[index];
-        //     this.dataList[index] = this.dataList[i];
-        //     this.dataList[i] = data;
-        // }
+    init(cellNum: number, exclude: number[], direction: number, boardJs: JigsawPuzzleUI) {
+        this.dataList = this.shuffleList(cellNum+exclude.length, exclude);
         this.boardJs = boardJs;
         this.tableView = new TableView();
         // 不能直接使用 this.callback ,不然该函数里面的this都将变成this.tableView对象
@@ -34,7 +25,7 @@ export class TableViewUse extends cc.Component{
     }
 
     callback(cell: cc.Node, index: number){
-        if (index < 0 || index > this.dataList.length) {
+        if (index < 0 || index >= this.dataList.length) {
             cell.getChildByName("label").getComponent(cc.Label).string = "x";
         } else {
             let idx = this.dataList[index]
@@ -134,7 +125,7 @@ export class TableViewUse extends cc.Component{
     }
 
     reset(cellNum: number) {
-        this.dataList = this.shuffleList(cellNum);
+        this.dataList = this.shuffleList(cellNum, []);
         this.moveCell = null;
         this.originPos = null;
         this.isMoving = false;
@@ -145,15 +136,17 @@ export class TableViewUse extends cc.Component{
      * 获取打乱的列表
      * @param num 
      */
-    shuffleList(num: number, shuffle: boolean=false) {
+    shuffleList(num: number, exclude: number[], shuffle: boolean=false) {
         let list = [];
         for(let i=0; i < num; i++) {
-            list.push(i);
+            if (exclude.indexOf(i) == -1) {
+                list.push(i);
+            }
         }
         if (!shuffle) {
             return list;
         }
-        for(let i=num-1; i>-1; i--) {   // 打乱
+        for(let i=num-exclude.length-1; i>-1; i--) {   // 打乱
             let index = Math.floor(Math.random()*(i+1));
             let data = list[index];
             list[index] = list[i];

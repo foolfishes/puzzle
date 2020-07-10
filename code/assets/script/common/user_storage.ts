@@ -1,13 +1,27 @@
 
+/**
+ * 保存用户状态数据，key 格式为：jigsaw_{难度等级}_{资源id}
+ */
 export class UserStorage {
-    static getUserKey(key: string): string {
-        return cc.sys.localStorage.getItem(key)
+    static getUserData(key: string): string {
+        return cc.sys.localStorage.getItem(key);
     }
     
-    static setUserKey(key: string, value: string) {
-        cc.sys.localStorage.setItem(key, value)
+    static setUserData(key: string, value: string): void {
+        cc.sys.localStorage.setItem(key, value);
     }
-    
-    static status_normal_10000 = "";
+
+    static hasKey(key: string): boolean {
+        let data = UserStorage.getUserData(key);
+        if (data == "" || data == null) {
+            return false
+        } else {
+            return true
+        }
+    }
+
+    static clear() {
+        cc.sys.localStorage.clear();
+    }
 
 }

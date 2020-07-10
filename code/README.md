@@ -16,4 +16,4 @@ vs code 隐藏 meta 文件，设置中 "files.exclude": 添加 "**/*.meta": true
 - enter,quit
 - setting
 
-Ts 子类覆盖属性问题？？？
+

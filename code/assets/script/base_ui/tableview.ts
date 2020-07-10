@@ -294,6 +294,7 @@ export class TableView {
         for (let i=0; i< this.cellList.length; i++) {
             let cellObj = this.cellList[i];
             if (i < this.cellNum) {
+                cellObj.node.active = true;
                 cellObj.index = index;
                 if (this.direction == 0) {
                     cellObj.node.x = i * this.cell.width;

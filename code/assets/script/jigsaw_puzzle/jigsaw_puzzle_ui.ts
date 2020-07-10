@@ -1,8 +1,11 @@
 import {BoardSize, SplitLv} from "./config_data";
 import {TimePiece} from "./time_piece";
 import {UIUtil} from "../utils/ui_util";
-import { DialogUI } from "../base_ui/dialog_ui";
+import {DialogUI} from "../base_ui/dialog_ui";
 import {OriginImageUI} from "./origin_image_ui";
+import {UserStorage} from "../common/user_storage";
+import {TableViewUse} from "./tableview_use";
+
 const {ccclass, property} = cc._decorator;
 
 interface PieceData {
@@ -21,6 +24,7 @@ export class JigsawPuzzleUI extends cc.Component{
     boardPanel: cc.Node = null;
     pieceNum: number = 0;
     imgId: number = 0;
+    pieceStatus: number[][];  // 对应piece个数的数组，每个表示当前坐标，默认为空
 
     onLoad () {
         // var that = this
@@ -28,9 +32,10 @@ export class JigsawPuzzleUI extends cc.Component{
         //     cc.log("load finish ")
         //     that.init()
         // })
+        // UserStorage.clear();
         this.boardPanel = this.node.getChildByName("board");
         this.piece = this.boardPanel.getChildByName("piece");
-        this.init(10000, SplitLv.simple);
+        this.init(10000, SplitLv.crazy);
     }
  
     init(imgId: number, lv: string) {
@@ -38,8 +43,11 @@ export class JigsawPuzzleUI extends cc.Component{
         this.level = lv;
         let splitData = SplitLv.SplitData[this.level];
         this.pieceNum = splitData[0]*splitData[1]
+        this.pieceStatus = this.getPieceStatus();
+        let recoverList = this.recoverWithStatus();
         let tablePanel = this.node.getChildByName("tableview-h");
-        tablePanel.getComponent("tableview_use").init(this.pieceNum, 1, this);
+        let tablevewUse: TableViewUse = tablePanel.getComponent("tableview_use");
+        tablevewUse.init(this.pieceNum-recoverList.length, recoverList, 1, this);
         this.timePieceJs = new TimePiece();
         let topNode = this.node.getChildByName("top");
         this.timePieceJs.init(topNode, this.pieceNum);
@@ -50,6 +58,10 @@ export class JigsawPuzzleUI extends cc.Component{
         rightPanel.getChildByName("btn_show").on(cc.Node.EventType.TOUCH_END, this.showOriginImage, this);
         rightPanel.getChildByName("btn_set").on(cc.Node.EventType.TOUCH_END, this.showSettingPanel, this);
         rightPanel.getChildByName("btn_tool").on(cc.Node.EventType.TOUCH_END, this.showToolPanel, this);
+
+        // 定时保存状态
+        
+        this.schedule(this.savePieceStatus, 30);
     }
     /**
      * 完全拼接全图，测试用
@@ -105,19 +117,25 @@ export class JigsawPuzzleUI extends cc.Component{
      * 创建一个piece
      * @param {int}} index 
      * @param {*} pos 
+     * @param isWorld: 是否是世界坐标
      */
-    createNewPices(index: number, worldpos: cc.Vec3) {
+    createNewPices(index: number, position: cc.Vec3, isWorld: boolean=true) {
         let splitData: number[] = SplitLv.SplitData[this.level];
         // let data = this.getCropPos(index, splitData)
         let node = cc.instantiate(this.piece);
         node.setContentSize(cc.size(splitData[2], splitData[3]));
         node.active = true;
-        node.position = this.boardPanel.convertToNodeSpaceAR(worldpos);
+        if (isWorld) {
+            node.position = this.boardPanel.convertToNodeSpaceAR(position);
+        } else {
+            node.position = position;
+        }
         let img = this.getImgPath(index);
-        // cc.log("new piece: ", index, img)
         UIUtil.loadTextureAtlas(node, img[0], img[1]);
         this.boardPanel.addChild(node);
         this.pieceList.push({"node": node, "index": index, "fit": 0});
+        this.autoFitPos(node, false)
+        this.pieceStatus[index] = [node.x, node.y]
         node.on(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
         node.on(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
         node.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
@@ -130,7 +148,6 @@ export class JigsawPuzzleUI extends cc.Component{
     getImgPath(index: number): string[] {
         let path = "pieces_images/" + [this.imgId.toString(), this.level].join("_");
         let file = index.toString();
-        // let file = "1";
         return [path, file];
     }
     
@@ -164,7 +181,7 @@ export class JigsawPuzzleUI extends cc.Component{
      * 自动对齐pieces的位置，如果当前位置位于正确的位置，则对齐到准确的位置
      * @param {*} piece 
      */
-    autoFitPos(piece: cc.Node) {
+    autoFitPos(piece: cc.Node, detectSuccess=true) {
         let index = 0;
         let indexInList = 0;
         for(let i=0; i < this.pieceList.length; i++) {
@@ -178,12 +195,16 @@ export class JigsawPuzzleUI extends cc.Component{
         let fitPos: cc.Vec3 = this.getCropPos(index);
         if (Math.abs(piece.x-fitPos.x) < 30 && Math.abs(piece.y-fitPos.y) < 30) {
             piece.position = fitPos
+            this.pieceStatus[index] = [fitPos.x, fitPos.y]
             this.pieceList[indexInList].fit = 1;
         } else {
             this.pieceList[indexInList].fit = 0;
+            this.pieceStatus[index] = [piece.x, piece.y]
         }
-        if (this.isSuccess()) {
+
+        if (detectSuccess && this.isSuccess()) {
             this.timePieceJs.stop();
+            this.savePieceStatus();
             cc.log("success")
             this.showResultUI()
         }
@@ -198,27 +219,18 @@ export class JigsawPuzzleUI extends cc.Component{
             if (pieceData.fit == 0) {
                 return false;
             }
-            // let index: number = pieceData.index;
-            // let rightPos: cc.Vec3 = this.getCropPos(index);
-            // if (Math.abs(pieceData.node.x-rightPos.x) > 0.5 || Math.abs(pieceData.node.y-rightPos.y) > 0.5) {
-            //     return false;
-            // }
         }
         return true;
     }
 
     showResultUI() {
-        // let that: JigsawPuzzleUI = this;
-        // cc.loader.loadRes("prefabs/layer_dialog", (err, prefab)=> {
-        //     let panel = cc.instantiate(prefab);
-        //     panel.active = true;
-        //     let dialogCp: DialogUI =  panel.getComponent("dialog_ui");
-        //     dialogCp.init("恭喜完成拼图！！！", "over", "重新开始", "退出", ()=>{this.resetGame()});
-        // })
         new DialogUI("恭喜完成拼图！！！", "over", "重新开始", "退出", ()=>{this.resetGame()}).show()
     }
 
     onDestroy() {
+        this.savePieceStatus();
+        this.unschedule(this.savePieceStatus);
+        this.pieceStatus = null;
         this.pieceList = null;
         this.timePieceJs.destroy();
         this.timePieceJs = null;
@@ -227,6 +239,8 @@ export class JigsawPuzzleUI extends cc.Component{
 
     close(event: cc.Event.EventTouch) {
         // this.node.removeFromParent(true)
+        this.savePieceStatus();
+        this.unschedule(this.savePieceStatus);
         this.node.destroy();
     }
 
@@ -237,10 +251,56 @@ export class JigsawPuzzleUI extends cc.Component{
         for(let i=0; i< this.pieceList.length; i++) {
             this.pieceList[i].node.destroy();
         }
+        let key = ["jigsaw", this.level, this.imgId.toString()].join("_");
+        UserStorage.setUserData(key, null);
+        this.pieceStatus = this.initPieceStatus(); 
         this.pieceList = [];
         let tablePanel = this.node.getChildByName("tableview-h");
-        tablePanel.getComponent("tableview_use").reset(this.pieceNum);
+        let tablevewUse: TableViewUse = tablePanel.getComponent("tableview_use");
+        tablevewUse.reset(this.pieceNum);
         this.timePieceJs.reset();
+    }
+
+    /**
+     * 从状态数据恢复界面，返回恢复的piece数量
+     */
+    recoverWithStatus(): number[] {
+        let recoveList = new Array();
+        for(let i=0; i< this.pieceNum; i++) {
+            let status = this.pieceStatus[i];
+            if (status && status.length > 0) {
+                let pos = cc.v3(status[0], status[1], 0);
+                this.createNewPices(i, pos, false);
+                recoveList.push(i)
+            }
+        }
+        return recoveList;
+    }
+
+    getPieceStatus(): number[][] {
+        let key = ["jigsaw", this.level, this.imgId.toString()].join("_");
+        let data = UserStorage.getUserData(key);
+        let status;
+        if (data) {
+            status = JSON.parse(data);
+        } else {
+            status = this.initPieceStatus();
+        }
+        return status;
+    }
+
+    savePieceStatus() {
+        let data = JSON.stringify(this.pieceStatus);
+        let key = ["jigsaw", this.level, this.imgId.toString()].join("_");
+        UserStorage.setUserData(key, data);
+    }
+
+    initPieceStatus() {
+        let status = new Array(this.pieceNum);
+        for (let i=0; i< this.pieceNum; i++) {
+            status[i] = [];
+        }
+        return status;
     }
 
     showOriginImage(event: cc.Event.EventTouch) {
