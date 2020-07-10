@@ -35,7 +35,7 @@ export class JigsawPuzzleUI extends cc.Component{
         // UserStorage.clear();
         this.boardPanel = this.node.getChildByName("board");
         this.piece = this.boardPanel.getChildByName("piece");
-        this.init(10000, SplitLv.crazy);
+        this.init(10000, SplitLv.simple);
     }
  
     init(imgId: number, lv: string) {
@@ -304,7 +304,7 @@ export class JigsawPuzzleUI extends cc.Component{
     }
 
     showOriginImage(event: cc.Event.EventTouch) {
-        let originImg = "origin_images/" + this.imgId.toString()
+        let originImg = "pieces_images/" + this.imgId.toString()
         new OriginImageUI(originImg).show()
     }
 

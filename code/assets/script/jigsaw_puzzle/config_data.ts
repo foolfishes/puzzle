@@ -11,7 +11,7 @@ export class SplitLv {
     static hard = "hard";
     static crazy = "crazy";
     static SplitData = {
-        "simple": [4, 7, 268, 286],   // 行数，列数，小图piece大小(查看裁剪后图像大小)
+        "simple": [4, 6, 302, 296],   // 行数，列数，小图piece大小(查看裁剪后图像大小)
         "normal":[5, 8, 229, 234],
         "hard": [7, 11, 167, 168],
         "crazy": [9, 14, 130, 131]

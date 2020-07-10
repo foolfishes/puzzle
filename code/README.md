@@ -12,7 +12,7 @@ vs code 隐藏 meta 文件，设置中 "files.exclude": 添加 "**/*.meta": true
 - auto fit pos  ✔
 - time change, piece num  ✔
 - show origin   ✔
-- save status, reload status
+- save status, reload status  ✔
 - enter,quit
 - setting
 
