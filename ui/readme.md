@@ -10,7 +10,7 @@ UI 工程目录
 拼图切块使用PS Puzzle Pro 滤镜来实现;  滤镜配置参数：
 
 切割参数：选择默认数据，半圆形模式;  KNOBS SIZE: 88
-斜面参数：ANGLE:122/27; BEVEL SIZE: 2px; DEPTH:3px;  其他默认;
+斜面参数：ANGLE:122/27;(75%, 75%); BEVEL SIZE: 2px; DEPTH:3px;SOFTEM: 0px  其他默认;
 
 
 选择全部然后保存Piece到psd，打开psd(ps cc打开才行)；执行操作：
@@ -24,7 +24,7 @@ UI 工程目录
 
 
 切割大小：
-- simple: (4, 7)     大小： (268, 286)
+- simple: (4, 6)     大小： (302, 296)
 - normal: (5, 8)     大小： (229, 234)
 - hard: (7, 11)      大小： (167, 168)
 - crazy: (9, 14)     大小： (130, 131)
