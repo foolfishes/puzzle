@@ -51,7 +51,7 @@ export class JigsawPuzzleUI extends cc.Component{
         this.timePieceJs = new TimePiece();
         let topNode = this.node.getChildByName("top");
         this.timePieceJs.init(topNode, this.pieceNum);
-
+      
         let closeBtn = this.node.getChildByName("btn_close");
         closeBtn.on(cc.Node.EventType.TOUCH_END, this.close, this);
         let rightPanel = this.node.getChildByName("right");
@@ -281,7 +281,7 @@ export class JigsawPuzzleUI extends cc.Component{
         let key = ["jigsaw", this.level, this.imgId.toString()].join("_");
         let data = UserStorage.getUserData(key);
         let status;
-        if (data) {
+        if (data != null && data != "") {
             status = JSON.parse(data);
         } else {
             status = this.initPieceStatus();
@@ -290,6 +290,9 @@ export class JigsawPuzzleUI extends cc.Component{
     }
 
     savePieceStatus() {
+        if (!this.pieceStatus || this.pieceStatus.length != this.pieceNum) {
+            return;
+        }
         let data = JSON.stringify(this.pieceStatus);
         let key = ["jigsaw", this.level, this.imgId.toString()].join("_");
         UserStorage.setUserData(key, data);

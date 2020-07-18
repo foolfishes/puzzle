@@ -21,7 +21,7 @@
         "__id__": 2
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [],
     "_prefab": {
       "__id__": 15
@@ -569,9 +569,7 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_spriteFrame": {
-      "__uuid__": "4ebb1e53-cc1d-473b-823b-166f264a5151"
-    },
+    "_spriteFrame": null,
     "_type": 0,
     "_sizeMode": 0,
     "_fillType": 0,
