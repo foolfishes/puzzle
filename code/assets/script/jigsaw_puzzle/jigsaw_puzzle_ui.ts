@@ -1,8 +1,8 @@
 import {BoardSize, SplitLv} from "./config_data";
-import {TimePiece} from "./time_piece";
+import {TopPanel} from "./top_panel";
 import {UIUtil} from "../utils/ui_util";
 import {DialogUI} from "../base_ui/dialog_ui";
-import {OriginImageUI} from "./origin_image_ui";
+import {OriginImageUI} from "../common/origin_image_ui";
 import {UserStorage} from "../common/user_storage";
 import {TableViewUse} from "./tableview_use";
 
@@ -20,7 +20,7 @@ export class JigsawPuzzleUI extends cc.Component{
     piece: cc.Node = null;
     level: string = "normal";
     pieceList: PieceData[] = [];
-    timePieceJs: TimePiece = null;
+    topPanel: TopPanel = null;
     boardPanel: cc.Node = null;
     pieceNum: number = 0;
     imgId: number = 0;
@@ -48,9 +48,9 @@ export class JigsawPuzzleUI extends cc.Component{
         let tablePanel = this.node.getChildByName("tableview-h");
         let tablevewUse: TableViewUse = tablePanel.getComponent("tableview_use");
         tablevewUse.init(this.pieceNum-recoverList.length, recoverList, 1, this);
-        this.timePieceJs = new TimePiece();
+        this.topPanel = new TopPanel();
         let topNode = this.node.getChildByName("top");
-        this.timePieceJs.init(topNode, this.pieceNum);
+        this.topPanel.reset(topNode, this.pieceNum);
       
         let closeBtn = this.node.getChildByName("btn_close");
         closeBtn.on(cc.Node.EventType.TOUCH_END, this.close, this);
@@ -203,7 +203,7 @@ export class JigsawPuzzleUI extends cc.Component{
         }
 
         if (detectSuccess && this.isSuccess()) {
-            this.timePieceJs.stop();
+            this.topPanel.stop();
             this.savePieceStatus();
             cc.log("success")
             this.showResultUI()
@@ -232,8 +232,8 @@ export class JigsawPuzzleUI extends cc.Component{
         this.unschedule(this.savePieceStatus);
         this.pieceStatus = null;
         this.pieceList = null;
-        this.timePieceJs.destroy();
-        this.timePieceJs = null;
+        this.topPanel.destroy();
+        this.topPanel = null;
         this.boardPanel = null;
     }
 
@@ -258,7 +258,8 @@ export class JigsawPuzzleUI extends cc.Component{
         let tablePanel = this.node.getChildByName("tableview-h");
         let tablevewUse: TableViewUse = tablePanel.getComponent("tableview_use");
         tablevewUse.reset(this.pieceNum);
-        this.timePieceJs.reset();
+        let topNode = this.node.getChildByName("top");
+        this.topPanel.reset(topNode, this.pieceNum);
     }
 
     /**
@@ -308,14 +309,14 @@ export class JigsawPuzzleUI extends cc.Component{
 
     showOriginImage(event: cc.Event.EventTouch) {
         let originImg = "pieces_images/" + this.imgId.toString()
-        new OriginImageUI(originImg).show()
+        new OriginImageUI(originImg).show();
     }
 
     showSettingPanel(event: cc.Event.EventTouch) {
-        new DialogUI("setting").show()
+        new DialogUI("setting").show();
     }
     
     showToolPanel(event: cc.Event.EventTouch) {
-        this.resetGame()
+        this.resetGame();
     }
 }
