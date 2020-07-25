@@ -252,7 +252,7 @@ export class JigsawPuzzleUI extends cc.Component{
             this.pieceList[i].node.destroy();
         }
         let key = ["jigsaw", this.level, this.imgId.toString()].join("_");
-        UserStorage.setUserData(key, null);
+        UserStorage.setUserData(key, "");
         this.pieceStatus = this.initPieceStatus(); 
         this.pieceList = [];
         let tablePanel = this.node.getChildByName("tableview-h");

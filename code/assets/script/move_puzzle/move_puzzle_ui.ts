@@ -24,7 +24,7 @@ export class MovePuzzleUI extends cc.Component {
         this.imgId = 10000;
         let imgPath = "pieces_images/" + this.imgId;
         this.initUI();
-        this.reset(LevelType.SIMPLE, imgPath);
+        this.reset(LevelType.HARD, imgPath);
         MovePuzzleUI._instance = this;
     }
 
@@ -62,23 +62,23 @@ export class MovePuzzleUI extends cc.Component {
         return true
     }
 
-    getNearPieces(piece:MovePuzzlePiece): MovePuzzlePiece[] {
-        let nearPieces = [];
-        let rowCol = LevelType.RowColumn[this.level];
-        if (piece.currRow > 0) {
-            nearPieces.push(this.pieceMap[piece.currRow - 1][piece.currColumn])
-        }
-        if (piece.currRow < rowCol[0] - 1) {
-            nearPieces.push(this.pieceMap[piece.currRow + 1][piece.currColumn])
-        }
-        if (piece.currColumn > 0) { 
-            nearPieces.push(this.pieceMap[piece.currRow][piece.currColumn - 1])
-        }
-        if (piece.currColumn < rowCol[1] - 1) {
-            nearPieces.push(this.pieceMap[piece.currRow][piece.currColumn + 1])
-        }
-        return nearPieces
-    }
+    // getNearPieces(piece:MovePuzzlePiece): MovePuzzlePiece[] {
+    //     let nearPieces = [];
+    //     let rowCol = LevelType.RowColumn[this.level];
+    //     if (piece.currRow > 0) {
+    //         nearPieces.push(this.pieceMap[piece.currRow - 1][piece.currColumn])
+    //     }
+    //     if (piece.currRow < rowCol[0] - 1) {
+    //         nearPieces.push(this.pieceMap[piece.currRow + 1][piece.currColumn])
+    //     }
+    //     if (piece.currColumn > 0) { 
+    //         nearPieces.push(this.pieceMap[piece.currRow][piece.currColumn - 1])
+    //     }
+    //     if (piece.currColumn < rowCol[1] - 1) {
+    //         nearPieces.push(this.pieceMap[piece.currRow][piece.currColumn + 1])
+    //     }
+    //     return nearPieces
+    // }
 
     exchangeTwoPiece(piece1: MovePuzzlePiece, piece2: MovePuzzlePiece): void {
         this.pieceMap[piece2.currRow][piece2.currColumn] = piece1;
@@ -91,7 +91,7 @@ export class MovePuzzleUI extends cc.Component {
 
         if (!this.isOver) {
             if (this.judgeFinish()) {
-                this.over();
+                this.gameFinish();
             }
         }
     }
@@ -172,6 +172,23 @@ export class MovePuzzleUI extends cc.Component {
         return this.pieceMap[row][column];
     }
 
+    fitOnePiece() {
+        let rowCol = LevelType.RowColumn[this.level];
+        let piece: MovePuzzlePiece = null;
+        for (let x = 0; x < rowCol[0]; x++) {
+            for (let y = 0; y < rowCol[1]; y++) {
+                if(!this.pieceMap[x][y].isFitPos()) {
+                    piece = this.pieceMap[x][y];
+                    break;
+                }
+            }
+        }
+        if (piece == null) {
+            return;
+        }
+        this.exchangeTwoPiece(piece, this.pieceMap[piece.oriRow][piece.oriColumn]);
+    }
+
     resetZIndex() {
         let rowCol = LevelType.RowColumn[this.level];
         for(let i=0; i<rowCol[0]; i++) {
@@ -181,10 +198,12 @@ export class MovePuzzleUI extends cc.Component {
         }
     }
 
-    over() {
+    gameFinish() {
         // this.winPanel.active = true
         this.isOver = true
         cc.log("game over")
+        let originImg = "pieces_images/" + this.imgId.toString()
+        new DialogUI("恭喜完成拼图！！！", "over", "重新开始", "退出", ()=>{this.reset(this.level, originImg)}).show()
     }
 
     close(event: cc.Event.EventTouch) {
@@ -198,13 +217,16 @@ export class MovePuzzleUI extends cc.Component {
     }
 
     showSettingPanel(event: cc.Event.EventTouch) {
-        new DialogUI("setting").show();
+        this.fitOnePiece();
+        // new DialogUI("setting").show();
     }
     
     showToolPanel(event: cc.Event.EventTouch) {
-        cc.log("tool");
-        let originImg = "pieces_images/" + this.imgId.toString()
-        this.reset(this.level, originImg);
+        let dialog = new DialogUI("reset", null, null, null, ()=>{
+            let originImg = "pieces_images/" + this.imgId.toString()
+            this.reset(this.level, originImg);
+        })
+        dialog.show();
     }
 
 }
