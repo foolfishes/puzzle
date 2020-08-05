@@ -33,16 +33,16 @@ export class TableViewUse extends cc.Component{
             UIUtil.loadTextureAtlas(cell.getChildByName("image"), imgPath[0], imgPath[1]);
             cell.getChildByName("label").getComponent(cc.Label).string = idx.toString();
         }
-        var touchStart = function(event) {
+        let touchStart = function(event) {
             this.onTouchStart(event, index);
         }
-        var touchMove = function(event){
+        let touchMove = function(event){
             this.onTouchMove(event, index);
         }
-        var touchEnd = function(event){
+        let touchEnd = function(event){
             this.onTouchEnd(event, index);
         }
-        var touchCancel = function(event) {
+        let touchCancel = function(event) {
             this.onTouchCancel(event, index);
         }
         cell.targetOff(this);

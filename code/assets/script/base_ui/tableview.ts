@@ -72,6 +72,8 @@ export class TableView {
             let cellObj = {"node": cell, "index": i};
             this.cellListCache.push(cellObj);
         }
+
+        this.cell.active = false;
     }
 
     onTouchStart(event: cc.Event.EventTouch) {
