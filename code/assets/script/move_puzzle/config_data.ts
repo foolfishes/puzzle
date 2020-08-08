@@ -9,8 +9,9 @@ export class LevelType {
     static SIMPLE = 0;
     static NORMAL = 1;
     static HARD = 2;
+    static CRAZY = 3;
     // 行数，列数
-    static RowColumn = [[4, 6,], [5, 8],[7, 11]];
+    static RowColumn = [[4, 6,], [5, 8],[7, 11], [9, 14]];
 }
 
 // cc.Class({

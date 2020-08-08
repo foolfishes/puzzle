@@ -1,11 +1,11 @@
-import {PopUI} from "./pop_ui"
+import {CenterPop} from "./center_pop"
 import {ButtonStyle} from "../common/com_define"
 import {Language} from "../common/language"
 import {UIUtil} from "../utils/ui_util"
 
 const {ccclass, property} = cc._decorator;
 
-export class DialogUI extends PopUI{
+export class DialogUI extends CenterPop{
     content: string;
     title: string;
     okTitle: string;
@@ -14,8 +14,8 @@ export class DialogUI extends PopUI{
     cancelCallback: any = null;
     buttonStyle: ButtonStyle;
 
-    constructor(content: string, title?: string, okTitle?: string, cancelTitle?: string,okCallback?: any,  cancelCallback?: any, buttonStyle=ButtonStyle.OK_CANCEL,) {
-        super("prefabs/layer_dialog")
+    constructor(content: string, title?: string, okTitle?: string, cancelTitle?: string, okCallback?: any,  cancelCallback?: any, buttonStyle=ButtonStyle.OK_CANCEL) {
+        super("prefabs/dialog_layer")
         this.content = content;
         this.title = title != null ? title: Language.TIPS;
         this.okTitle = okTitle !=null ? okTitle: Language.CONFIRM;
@@ -61,5 +61,4 @@ export class DialogUI extends PopUI{
         }
         this.close()
     }
-
 }

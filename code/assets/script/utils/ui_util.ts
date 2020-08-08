@@ -34,7 +34,7 @@ export class UIUtil {
      * @param params 
      */
     static addListener(node: cc.Node, callback: Function, params=null) {
-        let _callback = function(event) {
+        let _callback = function(event:cc.Event.EventTouch) {
             if (params) {
                 callback(event, params);
             } else {

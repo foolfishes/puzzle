@@ -5,16 +5,16 @@ export class BoardSize {
     static height: number = 900;
 }
 
-export class SplitLv {
-    static simple = "simple";
-    static normal = "normal";
-    static hard = "hard";
-    static crazy = "crazy";
-    static SplitData = {
-        "simple": [4, 6, 302, 296],   // 行数，列数，小图piece大小(查看裁剪后图像大小)
-        "normal":[5, 8, 229, 234],
-        "hard": [7, 11, 167, 168],
-        "crazy": [9, 14, 130, 131]
-    }
+export class LevelType {
+    static simple = 0;
+    static normal = 1;
+    static hard = 2;
+    static crazy = 3;
+    static level_desc = ["simple", "normal", "hard", "crazy"]
+    static SplitData = [
+        [4, 6, 302, 296],   // 行数，列数，小图piece大小(查看裁剪后图像大小)
+        [5, 8, 229, 234],
+        [7, 11, 167, 168],
+        [9, 14, 130, 131]]
 }
 

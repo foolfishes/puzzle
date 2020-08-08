@@ -25,3 +25,11 @@ export class UserStorage {
     }
 
 }
+
+
+export class LocalKey {
+
+    static user_type_select = "user_type_select";
+    static user_level_select = "user_level_select"
+
+}

@@ -4,6 +4,8 @@ import { MovePuzzlePiece } from "./move_puzzle_piece";
 import { OriginImageUI} from "../common/origin_image_ui";
 import { DialogUI } from "../base_ui/dialog_ui";
 import { TopPanel } from "../jigsaw_puzzle/top_panel";
+import { DataUtil } from "../utils/data_util";
+import { UIUtil } from "../utils/ui_util";
 
 const {ccclass, property} = cc._decorator;
 
@@ -14,31 +16,23 @@ export class MovePuzzleUI extends cc.Component {
     level: number;
     gridWidth: number;  // 实际格子宽度
     pieceMap: MovePuzzlePiece[][]; // 左上角开始
-    shuffleStep: number[];
     isOver: boolean;
     imgId: number;
     topPanel: TopPanel;
     static _instance: MovePuzzleUI;
 
     onLoad () {
-        this.imgId = 10000;
-        let imgPath = "pieces_images/" + this.imgId;
         this.initUI();
-        this.reset(LevelType.HARD, imgPath);
         MovePuzzleUI._instance = this;
-    }
-
-    // start () {
-    // },
-
-    onDestroy() {
-        this.piece = null;
-        this.pieceMap = null;
-        this.topPanel.destroy();
     }
 
     static getInstance(): MovePuzzleUI{
         return MovePuzzleUI._instance;
+    }
+
+    init(imgId:number, level: number) {
+        this.imgId = imgId;
+        this.reset(level, DataUtil.getImageById(imgId));
     }
 
     initUI() {
@@ -48,6 +42,7 @@ export class MovePuzzleUI extends cc.Component {
         rightPanel.getChildByName("btn_show").on(cc.Node.EventType.TOUCH_END, this.showOriginImage, this);
         rightPanel.getChildByName("btn_set").on(cc.Node.EventType.TOUCH_END, this.showSettingPanel, this);
         rightPanel.getChildByName("btn_tool").on(cc.Node.EventType.TOUCH_END, this.showToolPanel, this);
+        UIUtil.addListener(this.node.getChildByName("bg"), (event:cc.Event.EventTouch)=>{event.stopPropagation()})
     }
 
     judgeFinish():boolean {
@@ -96,7 +91,7 @@ export class MovePuzzleUI extends cc.Component {
         }
     }
 
-    reset(level, imgPath) {
+    reset(level: number, imgPath: string) {
         let piece = this.node.getChildByName("piece");
         this.level = level;
         this.isOver = false;
@@ -131,11 +126,8 @@ export class MovePuzzleUI extends cc.Component {
             let y = Math.floor(Math.random() * rowCol[1]);
             let x1 = Math.floor(Math.random() * rowCol[0]);
             let y1 = Math.floor(Math.random() * rowCol[1]);
-            
             this.exchangeTwoPiece(this.pieceMap[x][y], this.pieceMap[x1][y1]);
-            // this.shuffleStep.push(n)
         }
-        // cc.log("shuffle: ", this.shuffleStep)
     }
 
     getPiecePos(row, column): cc.Vec3 {
@@ -199,15 +191,18 @@ export class MovePuzzleUI extends cc.Component {
     }
 
     gameFinish() {
-        // this.winPanel.active = true
-        this.isOver = true
-        cc.log("game over")
+        this.isOver = true;
         let originImg = "pieces_images/" + this.imgId.toString()
-        new DialogUI("恭喜完成拼图！！！", "over", "重新开始", "退出", ()=>{this.reset(this.level, originImg)}).show()
+        new DialogUI("恭喜完成拼图！！！", "over", "重新开始", "退出", 
+                     ()=>{this.reset(this.level, originImg)},
+                     ()=>{this.close()}).show()
     }
 
-    close(event: cc.Event.EventTouch) {
-        // this.node.removeFromParent(true)
+    close(event?: cc.Event.EventTouch) {
+        MovePuzzleUI._instance = null;
+        this.piece = null;
+        this.pieceMap = null;
+        this.topPanel.destroy();
         this.node.destroy();
     }
 
@@ -218,13 +213,12 @@ export class MovePuzzleUI extends cc.Component {
 
     showSettingPanel(event: cc.Event.EventTouch) {
         this.fitOnePiece();
-        // new DialogUI("setting").show();
+        // todo
     }
     
     showToolPanel(event: cc.Event.EventTouch) {
         let dialog = new DialogUI("reset", null, null, null, ()=>{
-            let originImg = "pieces_images/" + this.imgId.toString()
-            this.reset(this.level, originImg);
+            this.reset(this.level, DataUtil.getImageById(this.imgId));
         })
         dialog.show();
     }

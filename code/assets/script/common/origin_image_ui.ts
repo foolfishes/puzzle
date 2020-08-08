@@ -1,16 +1,16 @@
 
 import {UIUtil} from "../utils/ui_util"
-import {PopUI} from "../base_ui/pop_ui"
+import {CenterPop} from "../base_ui/center_pop"
 
 
 const {ccclass, property} = cc._decorator;
 
-export class OriginImageUI extends PopUI{
+export class OriginImageUI extends CenterPop{
 
     imgPath: string;
     
     constructor(imgPath: string) {
-        super("prefabs/layer_origin_img");
+        super("prefabs/origin_img_layer");
         this.imgPath = imgPath;
     }
 

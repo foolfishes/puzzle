@@ -39,6 +39,7 @@ export class TopPanel{
     // }
 
     destroy() {
+        this.stop();
         this.timeText = null;
     }
 }

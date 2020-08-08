@@ -28,7 +28,7 @@ export class TableView {
         this.cellNum = cellNum;
         this.cell = this.node.getChildByName("container").getChildByName("content");
         this.direction = direction;
-
+        
         this.node.on(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
         this.node.on(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
         this.node.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);

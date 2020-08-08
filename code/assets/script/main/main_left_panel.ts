@@ -1,14 +1,17 @@
 import { TableView } from "../base_ui/tableview";
 import { Language } from "../common/language";
 import { UIUtil } from "../utils/ui_util";
+import { MainUI } from "./main_ui";
 
 export class MainLeftPanel {
     rootNode: cc.Node;
+    mainUI: MainUI;
     dataList: number[];
     tableView: TableView;
 
-    init(rootNode: cc.Node) {
+    init(rootNode: cc.Node, mainUI: MainUI) {
         this.rootNode = rootNode;
+        this.mainUI = mainUI;
         this.dataList = [0,1,2,3,4,5];
         this.tableView = new TableView();
         this.tableView.setCellAtIndexCallback((cell, index)=> {this.tableViewCallback(cell, index)});
@@ -27,8 +30,9 @@ export class MainLeftPanel {
             // to add touch anim here;
         }
 
-        let onTouchEnd = function(event:cc.Event.EventTouch) {
+        let onTouchEnd = (event:cc.Event.EventTouch)=> {
             cc.log("touch on index: ", index);
+            this.mainUI.onTypeTabChange(imgType);
         }
         cell.on(cc.Node.EventType.TOUCH_START, onTouchStart, this);
         cell.on(cc.Node.EventType.TOUCH_END, onTouchEnd, this);

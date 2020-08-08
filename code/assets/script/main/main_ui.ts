@@ -14,26 +14,33 @@ export class MainUI extends cc.Component {
     mainCenterPanel: MainCenterPanel;
     mainTopPanel: MainTopPanel;
 
+    static _instance;
+
 
     onLoad() {
         this.initUI();
+        MainUI._instance = this;
+    }
+
+    static getInstance() {
+        return MainUI._instance;
     }
 
     initUI() {
         this.mainLeftPanel = new MainLeftPanel();
-        this.mainLeftPanel.init(this.node.getChildByName("left_panel"))
+        this.mainLeftPanel.init(this.node.getChildByName("left_panel"), this);
         this.mainCenterPanel = new MainCenterPanel();
         this.mainCenterPanel.init(this.node.getChildByName("main_panel"));
         this.mainTopPanel = new MainTopPanel();
         this.mainTopPanel.init(this.node.getChildByName("top_panel"));
     }
 
-    initTopPanel() {
-
+    onTypeTabChange(type: number) {
+        this.mainCenterPanel.reloadData(type);
     }
 
-    initMainPanel() {
-
+    setActive(status: boolean) {
+        this.node.active = status;
     }
 
     

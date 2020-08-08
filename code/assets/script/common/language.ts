@@ -4,4 +4,5 @@ export class Language {
     static CANCEL = "取消";
 
     static IMAGE_TYPE = ["全部", "食物", "人物","风景", "动物", "建筑"];
+    static RES_NULL_TIPS = "暂无资源";
 }

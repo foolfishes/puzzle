@@ -4,6 +4,9 @@
 
 vs code 隐藏 meta 文件，设置中 "files.exclude": 添加 "**/*.meta": true
 
+# UI 命名规则
+
+节点名称： 描述_节点类型_index  如： left_label_1, tips_img_2
 
 # todo
 

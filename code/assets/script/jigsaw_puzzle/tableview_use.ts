@@ -104,7 +104,7 @@ export class TableViewUse extends cc.Component{
                 this.boardJs.createNewPices(idx, worldPos);
                 this.moveCell.removeFromParent(true) ;
                 this.moveCell = null;
-                this.tableView.reloadData(this.dataList.length, true, index==0);
+                this.tableView.reloadData(this.dataList.length, true);
             } else {
                 let action = cc.moveTo(0.05, this.originPos);
                 let callback = cc.callFunc(this.clearMoveCell, this);
