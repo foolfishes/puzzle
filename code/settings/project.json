@@ -24,8 +24,8 @@
   "simulator-orientation": true,
   "use-customize-simulator": true,
   "simulator-resolution": {
-    "height": 1080,
-    "width": 1920
+    "height": 768,
+    "width": 1366
   },
   "assets-sort-type": "name",
   "facebook": {
@@ -41,5 +41,5 @@
   "migrate-history": [
     "cloud-function"
   ],
-  "start-scene": "current"
+  "preview-port": 7456
 }

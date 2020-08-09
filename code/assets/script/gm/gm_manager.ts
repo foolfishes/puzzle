@@ -1,11 +1,12 @@
 import {DialogUI} from "../base_ui/dialog_ui";
+import { UIManager } from "../base_ui/ui_manager";
 
 
 
 export class GmManager {
 
     private static _instance: GmManager;
-    private static pressedKey: cc.macro.KEY[];
+    private static pressedKey: cc.macro.KEY[];   
 
     static getInstance() {
         if (GmManager._instance == null) {
@@ -45,14 +46,14 @@ export class GmManager {
         if (GmManager.pressedKey.indexOf(cc.macro.KEY.ctrl) != -1) {
             switch(event.keyCode) {
                 case cc.macro.KEY.a:
-                    GmManager.showResultUI()
+                    GmManager.testA()
                     break;
             }
         }
     }
 
-    static showResultUI() {
-        new DialogUI("恭喜完成拼图！！！", "over", "重新开始", "退出").show()
+    static testA() {
+        
     }
 
 
