@@ -18,7 +18,7 @@ export class CenterPop{
             this.rootNode = cc.instantiate(prefab);
             this.rootNode.active = true;
             this.rootNode.on(cc.Node.EventType.TOUCH_END, this.onBgTouch, this);
-            cc.find("Canvas").addChild(this.rootNode);
+            cc.find("Canvas/pop_layer").addChild(this.rootNode);
             this.initUI();
         })
     }
@@ -53,7 +53,8 @@ export class CenterPop{
         let scale = cc.scaleTo(0.2, 0.8);
         let call = cc.callFunc(after, this);
         this.contentNode.runAction(cc.sequence(cc.spawn(fadeOut, scale), call));
-        this.rootNode.getChildByName("bg").active = false;
+        let bg = this.rootNode.getChildByName("bg");
+        if(bg) bg.active = false;
     }
 
     onBgTouch(event: cc.Event) {

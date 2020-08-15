@@ -1,4 +1,9 @@
 import { UIUtil } from "../utils/ui_util";
+import { SettingUI } from "./setting_ui";
+import { TaskUI } from "./task_ui";
+import { UserData } from "../game_data/user_data";
+import { FloatTipsUI } from "../base_ui/float_tips_ui";
+import { Language } from "../common/language";
 
 
 export class MainTopPanel {
@@ -13,7 +18,8 @@ export class MainTopPanel {
         let setBtn = this.rootNode.getChildByName("set_btn");
         let msgBtn = this.rootNode.getChildByName("msg_btn");
         let skinBtn = this.rootNode.getChildByName("skin_btn");
-        let searchBtn = this.rootNode.getChildByName("search_panel").getChildByName("search_btn");
+        // let searchBtn = this.rootNode.getChildByName("search_panel").getChildByName("search_btn");
+        this.rootNode.getChildByName("search_panel").active = false; // todo 暂时关闭
 
         let width = this.rootNode.width;
         setBtn.x = width - 90;
@@ -28,18 +34,24 @@ export class MainTopPanel {
         skinBtn.on(cc.Node.EventType.TOUCH_END, this._onSkinClick.bind(this), this);
         msgBtn.on(cc.Node.EventType.TOUCH_END, this._onMsgClick.bind(this), this);
         setBtn.on(cc.Node.EventType.TOUCH_END, this._onSetClick.bind(this), this);
-        searchBtn.on(cc.Node.EventType.TOUCH_END, this._onSearchClick.bind(this), this);
+        // searchBtn.on(cc.Node.EventType.TOUCH_END, this._onSearchClick.bind(this), this);
+        
+        this.updateData();
     }
 
+    updateData() {
+        UIUtil.getChildByName(this.rootNode, "piece_panel/lb_num").getComponent(cc.Label).string = UserData.getInstance().pieces.toString();
+        UIUtil.getChildByName(this.rootNode, "gold_panel/lb_num").getComponent(cc.Label).string = UserData.getInstance().gold.toString();
+    }
     _onAchieveClick(event: cc.Event.EventTouch) {
-        cc.log("achieve ");
+        new TaskUI().show();
     }
     _onPieceClick(event: cc.Event.EventTouch) {
-        cc.log("piece click");
+        FloatTipsUI.getInstance().show(Language.GET_PIECE_TIPS);
     }
 
     _onGoldClick(event: cc.Event.EventTouch) {
-        cc.log("gold touch");
+        FloatTipsUI.getInstance().show(Language.GET_GOLD_TIPS);
     }
 
     _onSkinClick(event: cc.Event.EventTouch) {
@@ -52,6 +64,7 @@ export class MainTopPanel {
 
     _onSetClick(evet: cc.Event.EventTouch) {
         cc.log("set click");
+        new SettingUI().show();
     }
 
     _onSearchClick(event: cc.Event.EventTouch) {

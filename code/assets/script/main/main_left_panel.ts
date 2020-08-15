@@ -12,7 +12,7 @@ export class MainLeftPanel {
     init(rootNode: cc.Node, mainUI: MainUI) {
         this.rootNode = rootNode;
         this.mainUI = mainUI;
-        this.dataList = [0,1,2,3,4,5];
+        this.dataList = [0, 1, 2, 3, 4, 5, 6];
         this.tableView = new TableView();
         this.tableView.setCellAtIndexCallback((cell, index)=> {this.tableViewCallback(cell, index)});
         let panelList = UIUtil.getChildByName(this.rootNode, "panel_list")
@@ -20,18 +20,22 @@ export class MainLeftPanel {
     }
 
     tableViewCallback(cell:cc.Node, index: number) {
-        let imgType = this.dataList[index];
-        let lbName = Language.IMAGE_TYPE[imgType];
+        let imgType: number;
+        let lbName: string;
+        if (index == 0) {
+            imgType = -1;
+            lbName = Language.MINE;
+        } else {
+            imgType = this.dataList[index-1];
+            lbName = Language.IMAGE_TYPE[imgType];
+        }
         cell.getChildByName("label").getComponent(cc.Label).string = lbName;
         cell.targetOff(this);
         
         let onTouchStart = function(event: cc.Event.EventTouch) {
-            cc.log("on cell touch ", cell);
-            // to add touch anim here;
         }
 
         let onTouchEnd = (event:cc.Event.EventTouch)=> {
-            cc.log("touch on index: ", index);
             this.mainUI.onTypeTabChange(imgType);
         }
         cell.on(cc.Node.EventType.TOUCH_START, onTouchStart, this);

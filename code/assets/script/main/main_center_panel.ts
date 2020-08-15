@@ -3,6 +3,8 @@ import { UIUtil } from "../utils/ui_util";
 import { CfgImage, ImageDefine } from "../common/cfg_image";
 import { Language } from "../common/language";
 import { SelectConfirmUI } from "./select_confirm_ui";
+import { TaskDaily } from "../common/com_define";
+import { UserData } from "../game_data/user_data";
 
 export class MainCenterPanel {
     rootNode: cc.Node;
@@ -65,6 +67,9 @@ export class MainCenterPanel {
 
     reloadData(type: number) {
         this.dataList = [];
+        if (type == -1) {   // 我的
+            this.dataList = UserData.getInstance().imageIds.map(String);
+        }
         if (type == 0) {
             this.dataList = Object.keys(CfgImage);
         } else {

@@ -56,7 +56,7 @@ export class SelectConfirmUI extends CenterPop {
         if (this.typeSelected == 0) { // jigsaw
             cc.resources.load("prefabs/jigsaw_puzzle_layer", function(err, prefabs:cc.Prefab) {
                 let jigsawLayer:cc.Node = cc.instantiate(prefabs);
-                cc.find("Canvas").addChild(jigsawLayer);
+                cc.find("Canvas/content_layer").addChild(jigsawLayer);
                 let JigsawJs: JigsawPuzzleUI = jigsawLayer.getComponent("jigsaw_puzzle_ui");
                 JigsawJs.init(imgId, level);
                 that.close();
@@ -64,7 +64,7 @@ export class SelectConfirmUI extends CenterPop {
         } else {  // move
             cc.resources.load("prefabs/move_puzzle_layer", function(err, prefabs:cc.Prefab) {
                 let moveLayer:cc.Node = cc.instantiate(prefabs);
-                cc.find("Canvas").addChild(moveLayer);
+                cc.find("Canvas/content_layer").addChild(moveLayer);
                 let MoveJs: MovePuzzleUI = moveLayer.getComponent("move_puzzle_ui");
                 MoveJs.init(imgId, level);
                 that.close();

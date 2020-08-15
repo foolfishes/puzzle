@@ -23,7 +23,7 @@ export class MainUI extends cc.Component {
         MainUI._instance = this;
     }
 
-    static getInstance() {
+    static getInstance(): MainUI {
         return MainUI._instance;
     }
 
@@ -63,8 +63,8 @@ export class MainUI extends cc.Component {
         this.mainCenterPanel.reloadData(type);
     }
 
-    setActive(status: boolean) {
-        this.node.active = status;
+    updateTop() {
+        this.mainTopPanel.updateData();
     }
 
     

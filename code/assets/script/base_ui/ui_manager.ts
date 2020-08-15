@@ -1,4 +1,4 @@
-import {GmManager} from "../gm/gm_manager";
+import { Init } from "../main/int";
 
 /**
  * creator 会将 Canvas 自动适配一个方向，使之不会被裁剪，能够完全显示
@@ -46,7 +46,7 @@ export class UIManager {
         // cc.log("size2: ", cc.view.getVisibleSize().toString()); // 等于设计分辨率
         // cc.log("size3: ", cc.view.getVisibleSizeInPixel().toString());   // 等于设计分辨率当前实际的大小
         // cc.log("scale: ", cc.view.getScaleX(), cc.view.getScaleY());   // 上面两者的比值；
-        GmManager.getInstance();
+        Init.init();
     }
     
 

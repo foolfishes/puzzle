@@ -18,7 +18,7 @@ export class TableView {
     node: cc.Node = null;        // tableview 顶层节点
     cell: cc.Node = null;        // 提供需要显示的 cell 节点，可以获取大小等
     cellNum: number = 0;         // 需要显示的 cell 个数
-    direction: number = 0;       // 方向，水平(0)还是垂直
+    direction: number = 0;       // 方向，水平(0)还是垂直1
     maxOffset: number = 0;       // 最大偏移量
     constructor(){
     }
@@ -59,7 +59,9 @@ export class TableView {
             
             let cellObj = {"node": cell, "index": i};
             this.cellList.push(cellObj);
-            this.setCellContent(cell, i);
+            if (i < this.cellNum) {
+                this.setCellContent(cell, i);
+            }
         }
         this.calMaxOffset();
 

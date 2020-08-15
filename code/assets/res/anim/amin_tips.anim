@@ -1,0 +1,29 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "amin_tips",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 0.16666666666666666,
+  "sample": 60,
+  "speed": 1,
+  "wrapMode": 1,
+  "curveData": {
+    "props": {
+      "width": [
+        {
+          "frame": 0,
+          "value": 100
+        },
+        {
+          "frame": 0.08333333333333333,
+          "value": 400
+        },
+        {
+          "frame": 0.16666666666666666,
+          "value": 800
+        }
+      ]
+    }
+  },
+  "events": []
+}
