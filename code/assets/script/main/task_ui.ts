@@ -31,7 +31,7 @@ export class TaskUI extends CenterPop {
     initUI() {
         this.contentNode = this.rootNode.getChildByName("content_panel");
         UIUtil.addListener(this.contentNode, (event)=>{event.stopPropagation()}, this);
-        UIUtil.addListener(this.contentNode.getChildByName("close_btn"), this.close.bind(this), this);
+        UIUtil.addListener(this.contentNode.getChildByName("close_btn"), ()=>{this.close(false);}, this);
         this.tableView.setCellAtIndexCallback((cell, index)=> {this.tableViewCallback(cell, index)});
         this.tableView.init(this.contentNode.getChildByName("list_panel"), this.dataList.length, 1);
     }
@@ -41,7 +41,7 @@ export class TaskUI extends CenterPop {
         let initState = {
             state: new Array(this.dataList.length).fill(0),
             award: new Array(this.dataList.length).fill(0),
-            time: new Date().getTime()}
+            time: Math.floor(new Date().getTime()/1000)}
         initState.state[0] = 1;  // 每日登录
         if (json == "" || json == null) {
             this.taskState = initState;

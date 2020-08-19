@@ -14,7 +14,8 @@ export class CenterPop{
     }
 
     show() {
-        cc.loader.loadRes(this.resPath, (err, prefab)=> {
+        cc.resources.load(this.resPath, (err, prefab:cc.Prefab)=> {
+            cc.log("loader res: ", this.resPath)
             this.rootNode = cc.instantiate(prefab);
             this.rootNode.active = true;
             this.rootNode.on(cc.Node.EventType.TOUCH_END, this.onBgTouch, this);
@@ -61,7 +62,7 @@ export class CenterPop{
         // 防止穿透
         event.stopPropagation();
         if (this.closeOnBgTouch) {
-            this.onClose();
+            this.onClose(false);
         }
     }
 }
