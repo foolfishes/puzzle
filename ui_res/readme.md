@@ -19,7 +19,7 @@ UI 工程目录
 - 图像-裁切(透明像素，将每个图层裁切成大小一致的小图)；
 - 文件-导出-将图层导出到文件(选择透明区域选项)；选择PNG24，PNG8会有锯齿
 - rename_piece.py 脚本重命名
-- TexturePacker 打包,(需要留边界)
+- TexturePacker 打包,(需要留边界), 任意大小
 - pngquant 压缩大小: pngquant.exe --quality 5 xxx.png
 
 
